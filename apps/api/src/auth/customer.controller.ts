@@ -7,12 +7,11 @@ import {
   Req,
   Res,
   UseGuards,
-  ForbiddenException,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { PrismaClient, SecurityEventType, Customer } from '@salon/database';
+import { Customer } from '@salon/database';
 import { CustomerAuthService } from './customer-auth.service';
 import { CustomerAuthGuard } from './guards/customer-auth.guard';
 import { CurrentCustomer } from './decorators/current-customer.decorator';
@@ -22,7 +21,6 @@ import { RequestContext } from './dto/auth.dto';
 @Controller('api/customer')
 export class CustomerController {
   constructor(
-    private readonly prisma: PrismaClient,
     private readonly customerAuthService: CustomerAuthService,
   ) {}
 
@@ -102,49 +100,13 @@ export class CustomerController {
     @CurrentCustomer() customer: Customer,
     @Req() req: Request,
   ) {
-    // Strictly prevent IDOR: customer cannot access another customer's profile by changing the ID
-    if (customerId !== customer.id) {
-      await this.prisma.auditLog.create({
-        data: {
-          customerId: customer.id,
-          eventType: SecurityEventType.CUSTOMER_UNAUTHORIZED_ACCESS_ATTEMPT,
-          details: {
-            attemptedCustomerId: customerId,
-            actualCustomerId: customer.id,
-            reason: 'IDOR_VIOLATION',
-          },
-          ipAddress: (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress,
-        },
-      });
-
-      throw new ForbiddenException(
-        'دسترسی غیرمجاز به اطلاعات مشتری دیگر (Forbidden: IDOR protection)',
-      );
-    }
-
-    return { customer };
+    return this.customerAuthService.getProfile(customerId, customer, this.extractContext(req));
   }
 
   @Get('bookings')
   @UseGuards(CustomerAuthGuard)
   async getBookings(@CurrentCustomer() customer: Customer) {
-    const bookings = await this.prisma.serviceBooking.findMany({
-      where: { customerId: customer.id },
-      include: {
-        service: true,
-        artist: {
-          include: {
-            staff: {
-              select: {
-                fullName: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: { startTime: 'desc' },
-    });
-
+    const bookings = await this.customerAuthService.getCustomerBookings(customer.id);
     return { bookings };
   }
 }

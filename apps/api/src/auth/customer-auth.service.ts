@@ -1,6 +1,7 @@
 import {
   Injectable,
   UnauthorizedException,
+  ForbiddenException,
   BadGatewayException,
   HttpException,
   HttpStatus,
@@ -298,5 +299,51 @@ export class CustomerAuthService {
         },
       });
     }
+  }
+
+  async getProfile(
+    targetCustomerId: string,
+    currentCustomer: Customer,
+    context?: RequestContext,
+  ): Promise<{ customer: Customer }> {
+    if (targetCustomerId !== currentCustomer.id) {
+      await this.prisma.auditLog.create({
+        data: {
+          customerId: currentCustomer.id,
+          eventType: SecurityEventType.CUSTOMER_UNAUTHORIZED_ACCESS_ATTEMPT,
+          details: {
+            attemptedCustomerId: targetCustomerId,
+            actualCustomerId: currentCustomer.id,
+            reason: 'IDOR_VIOLATION',
+          },
+          ipAddress: context?.ipAddress,
+        },
+      });
+
+      throw new ForbiddenException(
+        'دسترسی غیرمجاز به اطلاعات مشتری دیگر (Forbidden: IDOR protection)',
+      );
+    }
+
+    return { customer: currentCustomer };
+  }
+
+  async getCustomerBookings(customerId: string) {
+    return this.prisma.serviceBooking.findMany({
+      where: { customerId },
+      include: {
+        service: true,
+        artist: {
+          include: {
+            staff: {
+              select: {
+                fullName: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { startTime: 'desc' },
+    });
   }
 }
