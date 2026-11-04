@@ -1,0 +1,118 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum StaffRole {
+  MANAGER
+  RECEPTIONIST
+  ACCOUNTANT
+  ARTIST
+}
+
+enum SecurityEventType {
+  LOGIN_ATTEMPT
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  MFA_CHALLENGE
+  MFA_SUCCESS
+  MFA_FAILED
+  RECOVERY_CODE_USED
+  SESSION_REVOKED
+  ROLE_CHANGED
+  STAFF_DEACTIVATED
+  PASSWORD_CHANGED
+  INDEPENDENT_RECOVERY_REQUESTED
+  INDEPENDENT_RECOVERY_APPROVED
+  INDEPENDENT_RECOVERY_REJECTED
+}
+
+enum RecoveryRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Staff {
+  id           String    @id @default(uuid())
+  username     String    @unique
+  fullName     String
+  phone        String?
+  passwordHash String
+  role         StaffRole
+  isActive     Boolean   @default(true)
+  mfaEnabled   Boolean   @default(false)
+  mfaSecret    String?
+
+  sessions          Session[]
+  recoveryCodes     RecoveryCode[]
+  auditLogs         AuditLog[]
+  requestedRecoveries IndependentRecoveryRequest[] @relation("TargetStaff")
+  approvedRecoveries  IndependentRecoveryRequest[] @relation("ApproverStaff")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role, isActive])
+}
+
+model Session {
+  id        String    @id @default(uuid())
+  staffId   String
+  tokenHash String    @unique
+  ipAddress String?
+  userAgent String?
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([staffId, revokedAt])
+}
+
+model RecoveryCode {
+  id       String    @id @default(uuid())
+  staffId  String
+  codeHash String
+  usedAt   DateTime?
+  createdAt DateTime @default(now())
+
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([staffId, usedAt])
+}
+
+model IndependentRecoveryRequest {
+  id              String                @id @default(uuid())
+  targetStaffId   String
+  requesterNote   String
+  status          RecoveryRequestStatus @default(PENDING)
+  approverStaffId String?
+  rejectionReason String?
+  resolvedAt      DateTime?
+  createdAt       DateTime              @default(now())
+
+  targetStaff   Staff  @relation("TargetStaff", fields: [targetStaffId], references: [id], onDelete: Cascade)
+  approverStaff Staff? @relation("ApproverStaff", fields: [approverStaffId], references: [id])
+
+  @@index([targetStaffId, status])
+}
+
+model AuditLog {
+  id        String            @id @default(uuid())
+  staffId   String?
+  eventType SecurityEventType
+  details   Json?
+  ipAddress String?
+  createdAt DateTime          @default(now())
+
+  staff Staff? @relation(fields: [staffId], references: [id], onDelete: SetNull)
+
+  @@index([staffId, eventType])
+  @@index([createdAt])
+}
