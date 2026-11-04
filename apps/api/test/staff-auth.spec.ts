@@ -11,7 +11,6 @@ describe('StaffAuthService - Seam 2: Domain Service Seam', () => {
   let authService: StaffAuthService;
 
   beforeEach(async () => {
-    // Clean test database tables
     await prisma.auditLog.deleteMany();
     await prisma.session.deleteMany();
     await prisma.recoveryCode.deleteMany();
@@ -27,10 +26,7 @@ describe('StaffAuthService - Seam 2: Domain Service Seam', () => {
 
   it('rejects login with invalid username or password', async () => {
     await expect(
-      authService.login({
-        username: 'nonexistent',
-        password: 'password123',
-      })
+      authService.login('nonexistent', 'password123')
     ).rejects.toThrow('Invalid credentials');
   });
 
@@ -43,19 +39,15 @@ describe('StaffAuthService - Seam 2: Domain Service Seam', () => {
         role: StaffRole.RECEPTIONIST,
         passwordHash,
         mfaEnabled: true,
-        mfaSecret: 'JBSWY3DPEHPK3PXP', // base32 test secret
+        mfaSecret: 'JBSWY3DPEHPK3PXP',
       },
     });
 
-    const result = await authService.login({
-      username: 'reception_user',
-      password: 'SecretPass123!',
-    });
+    const result = await authService.login('reception_user', 'SecretPass123!');
 
     expect(result.mfaRequired).toBe(true);
     expect(result.tempToken).toBeDefined();
 
-    // Verify audit log
     const logs = await prisma.auditLog.findMany({
       where: { staffId: staff.id },
     });
@@ -76,16 +68,10 @@ describe('StaffAuthService - Seam 2: Domain Service Seam', () => {
       },
     });
 
-    const loginRes = await authService.login({
-      username: 'reception_user',
-      password: 'SecretPass123!',
-    });
+    const loginRes = await authService.login('reception_user', 'SecretPass123!');
 
     await expect(
-      authService.verifyMfa({
-        tempToken: loginRes.tempToken!,
-        code: '000000', // Invalid TOTP code
-      })
+      authService.verifyMfa(loginRes.tempToken!, '000000')
     ).rejects.toThrow('Invalid MFA code');
 
     const logs = await prisma.auditLog.findMany({
@@ -108,15 +94,10 @@ describe('StaffAuthService - Seam 2: Domain Service Seam', () => {
       },
     });
 
-    const loginRes = await authService.login({
-      username: 'reception_user',
-      password: 'SecretPass123!',
-    });
+    const loginRes = await authService.login('reception_user', 'SecretPass123!');
 
     const validCode = authenticator.generate(secret);
-    const sessionResult = await authService.verifyMfa({
-      tempToken: loginRes.tempToken!,
-      code: validCode,
+    const sessionResult = await authService.verifyMfa(loginRes.tempToken!, validCode, {
       ipAddress: '127.0.0.1',
       userAgent: 'Vitest/Test-Agent',
     });
@@ -125,7 +106,6 @@ describe('StaffAuthService - Seam 2: Domain Service Seam', () => {
     expect(sessionResult.staff.id).toBe(staff.id);
     expect(sessionResult.staff.role).toBe(StaffRole.RECEPTIONIST);
 
-    // Verify session persisted in DB
     const sessionInDb = await prisma.session.findFirst({
       where: { staffId: staff.id },
     });
@@ -135,10 +115,7 @@ describe('StaffAuthService - Seam 2: Domain Service Seam', () => {
 
     // Temp token must be consumed and cannot be reused
     await expect(
-      authService.verifyMfa({
-        tempToken: loginRes.tempToken!,
-        code: validCode,
-      })
+      authService.verifyMfa(loginRes.tempToken!, validCode)
     ).rejects.toThrow('Invalid or expired MFA session');
   });
 
@@ -161,45 +138,32 @@ describe('StaffAuthService - Seam 2: Domain Service Seam', () => {
       },
     });
 
-    // 1. Initial login credentials
-    const loginRes = await authService.login({
-      username: 'artist_user',
-      password: 'SecretPass123!',
-    });
+    const loginRes = await authService.login('artist_user', 'SecretPass123!');
 
-    // 2. Verify with recovery code
-    const sessionResult = await authService.verifyRecoveryCode({
-      tempToken: loginRes.tempToken!,
-      recoveryCode: rawRecoveryCode,
-      ipAddress: '127.0.0.1',
-    });
+    const sessionResult = await authService.verifyRecoveryCode(
+      loginRes.tempToken!,
+      rawRecoveryCode,
+      { ipAddress: '127.0.0.1' }
+    );
 
     expect(sessionResult.sessionToken).toBeDefined();
     expect(sessionResult.staff.id).toBe(staff.id);
 
-    // 3. Verify recovery code is marked as used in DB
     const usedCode = await prisma.recoveryCode.findFirst({
       where: { staffId: staff.id },
     });
     expect(usedCode!.usedAt).not.toBeNull();
 
-    // 4. Verify audit log entry
     const auditLogs = await prisma.auditLog.findMany({
       where: { staffId: staff.id, eventType: 'RECOVERY_CODE_USED' },
     });
     expect(auditLogs.length).toBe(1);
 
-    // 5. Attempting to use the SAME recovery code again on next login must be rejected
-    const secondLogin = await authService.login({
-      username: 'artist_user',
-      password: 'SecretPass123!',
-    });
+    // Reuse must be rejected
+    const secondLogin = await authService.login('artist_user', 'SecretPass123!');
 
     await expect(
-      authService.verifyRecoveryCode({
-        tempToken: secondLogin.tempToken!,
-        recoveryCode: rawRecoveryCode,
-      })
+      authService.verifyRecoveryCode(secondLogin.tempToken!, rawRecoveryCode)
     ).rejects.toThrow('Invalid or already used recovery code');
   });
 });

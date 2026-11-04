@@ -1,7 +1,8 @@
-import { Controller, Post, Body, Res, Req, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Res, Req, HttpCode, HttpStatus } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { StaffAuthService } from './staff-auth.service';
 import { SessionService } from './session.service';
+import { LoginDto, VerifyMfaDto, VerifyRecoveryCodeDto, RequestContext } from './dto/auth.dto';
 
 @Controller('api/auth/staff')
 export class AuthController {
@@ -12,39 +13,29 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() body: any, @Req() req: Request) {
-    const ipAddress = req.ip || req.socket.remoteAddress;
-    return await this.staffAuthService.login({
-      username: body.username,
-      password: body.password,
-      ipAddress,
-    });
+  async login(@Body() body: LoginDto, @Req() req: Request) {
+    const context: RequestContext = {
+      ipAddress: req.ip || req.socket.remoteAddress,
+      userAgent: req.headers['user-agent'],
+    };
+    return await this.staffAuthService.login(body.username, body.password, context);
   }
 
   @Post('mfa-verify')
   @HttpCode(HttpStatus.OK)
   async verifyMfa(
-    @Body() body: any,
+    @Body() body: VerifyMfaDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response
   ) {
-    const ipAddress = req.ip || req.socket.remoteAddress;
-    const userAgent = req.headers['user-agent'];
+    const context: RequestContext = {
+      ipAddress: req.ip || req.socket.remoteAddress,
+      userAgent: req.headers['user-agent'],
+    };
 
-    const result = await this.staffAuthService.verifyMfa({
-      tempToken: body.tempToken,
-      code: body.code,
-      ipAddress,
-      userAgent,
-    });
+    const result = await this.staffAuthService.verifyMfa(body.tempToken, body.code, context);
 
-    res.cookie('salon_session', result.sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 12 * 60 * 60 * 1000,
-    });
+    this.setSessionCookie(res, result.sessionToken);
 
     return {
       message: 'MFA verified successfully',
@@ -61,27 +52,22 @@ export class AuthController {
   @Post('recovery-verify')
   @HttpCode(HttpStatus.OK)
   async verifyRecovery(
-    @Body() body: any,
+    @Body() body: VerifyRecoveryCodeDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response
   ) {
-    const ipAddress = req.ip || req.socket.remoteAddress;
-    const userAgent = req.headers['user-agent'];
+    const context: RequestContext = {
+      ipAddress: req.ip || req.socket.remoteAddress,
+      userAgent: req.headers['user-agent'],
+    };
 
-    const result = await this.staffAuthService.verifyRecoveryCode({
-      tempToken: body.tempToken,
-      recoveryCode: body.recoveryCode,
-      ipAddress,
-      userAgent,
-    });
+    const result = await this.staffAuthService.verifyRecoveryCode(
+      body.tempToken,
+      body.recoveryCode,
+      context
+    );
 
-    res.cookie('salon_session', result.sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 12 * 60 * 60 * 1000,
-    });
+    this.setSessionCookie(res, result.sessionToken);
 
     return {
       message: 'Recovery code verified successfully',
@@ -100,9 +86,22 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const token = req.cookies?.salon_session || req.headers.authorization?.replace('Bearer ', '');
     if (token) {
-      await this.sessionService.revokeSession(token, req.ip);
+      await this.sessionService.revokeSession(token, {
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'],
+      });
     }
     res.clearCookie('salon_session', { path: '/' });
     return { message: 'Logged out successfully' };
+  }
+
+  private setSessionCookie(res: Response, sessionToken: string): void {
+    res.cookie('salon_session', sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 12 * 60 * 60 * 1000,
+    });
   }
 }

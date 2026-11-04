@@ -43,7 +43,6 @@ describe('HTTP API Seam - Seam 1: Staff Access E2E Endpoints', () => {
     const rawRecoveryCode = 'RECP-1234-CODE-5678';
     const recoveryCodeHash = crypto.createHash('sha256').update(rawRecoveryCode).digest('hex');
 
-    // 1. Seed Manager and Receptionist staff
     const manager = await prisma.staff.create({
       data: {
         username: 'admin_manager',
@@ -205,7 +204,7 @@ describe('HTTP API Seam - Seam 1: Staff Access E2E Endpoints', () => {
     expect(updatedArtistMe.body.role).toBe(StaffRole.RECEPTIONIST);
   });
 
-  it('enforces independent manager approval for emergency recovery and rejects self-approval', async () => {
+  it('enforces independent manager approval for emergency recovery, generates claim token, and rejects self-approval', async () => {
     const passwordHash = await argon2.hash('SecretPass123!');
     const manager1Secret = 'JBSWY3DPEHPK3PXP';
     const manager2Secret = 'JBSWY3DPEHPK3PXQ';
@@ -232,7 +231,7 @@ describe('HTTP API Seam - Seam 1: Staff Access E2E Endpoints', () => {
       },
     });
 
-    // 1. Manager 1 creates emergency recovery request (e.g. without login, by staff ID)
+    // 1. Manager 1 creates emergency recovery request
     const reqRes = await request(app.getHttpServer())
       .post('/api/staff/emergency-recovery/request')
       .send({ targetStaffId: manager1.id, requesterNote: 'Lost TOTP and recovery codes' })
@@ -265,14 +264,23 @@ describe('HTTP API Seam - Seam 1: Staff Access E2E Endpoints', () => {
       .send({ tempToken: m2Login.body.tempToken, code: authenticator.generate(manager2Secret) });
     const m2Cookie = m2Mfa.headers['set-cookie'];
 
-    // 3. Manager 2 (independent) approves the request -> 200/201 OK
+    // 3. Manager 2 (independent) approves the request -> 200 OK, returns claimToken
     const approveRes = await request(app.getHttpServer())
       .post('/api/staff/emergency-recovery/approve')
       .set('Cookie', m2Cookie)
       .send({ requestId })
-      .expect(201);
+      .expect(200);
 
     expect(approveRes.body.status).toBe('APPROVED');
-    expect(approveRes.body.newRecoveryCodes.length).toBeGreaterThan(0);
+    expect(approveRes.body.claimToken).toBeDefined();
+
+    // 4. Target Manager claims their reset securely
+    const claimRes = await request(app.getHttpServer())
+      .post('/api/staff/emergency-recovery/claim')
+      .send({ requestId, claimToken: approveRes.body.claimToken })
+      .expect(200);
+
+    expect(claimRes.body.newRecoveryCodes.length).toBeGreaterThan(0);
+    expect(claimRes.body.newMfaSecret).toBeDefined();
   });
 });

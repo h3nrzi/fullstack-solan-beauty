@@ -1,17 +1,11 @@
-import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
-import { PrismaClient, SecurityEventType, Session, Staff, StaffRole } from '@salon/database';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PrismaClient, SecurityEventType, Session, Staff } from '@salon/database';
 import * as crypto from 'crypto';
+import { RequestContext } from './dto/auth.dto';
 
 export interface ValidatedSession {
   staff: Staff;
   session: Session;
-}
-
-export interface ChangeStaffRoleDto {
-  targetStaffId: string;
-  newRole: StaffRole;
-  changedByStaffId?: string;
-  reason?: string;
 }
 
 @Injectable()
@@ -44,7 +38,7 @@ export class SessionService {
     };
   }
 
-  async revokeSession(sessionToken: string, ipAddress?: string): Promise<void> {
+  async revokeSession(sessionToken: string, context?: RequestContext): Promise<void> {
     const tokenHash = crypto.createHash('sha256').update(sessionToken).digest('hex');
 
     const session = await this.prisma.session.findUnique({
@@ -62,13 +56,13 @@ export class SessionService {
           staffId: session.staffId,
           eventType: SecurityEventType.SESSION_REVOKED,
           details: { sessionId: session.id, reason: 'LOGOUT' },
-          ipAddress,
+          ipAddress: context?.ipAddress,
         },
       });
     }
   }
 
-  async revokeAllStaffSessions(staffId: string, revokedByStaffId?: string, ipAddress?: string): Promise<number> {
+  async revokeAllStaffSessions(staffId: string, revokedByStaffId?: string, context?: RequestContext): Promise<number> {
     const now = new Date();
 
     const result = await this.prisma.session.updateMany({
@@ -90,43 +84,10 @@ export class SessionService {
           revokedByStaffId,
           reason: 'ADMIN_REVOCATION',
         },
-        ipAddress,
+        ipAddress: context?.ipAddress,
       },
     });
 
     return result.count;
-  }
-
-  async changeStaffRole(dto: ChangeStaffRoleDto, ipAddress?: string): Promise<Staff> {
-    const staff = await this.prisma.staff.findUnique({
-      where: { id: dto.targetStaffId },
-    });
-
-    if (!staff) {
-      throw new NotFoundException('Staff member not found');
-    }
-
-    const previousRole = staff.role;
-
-    const updatedStaff = await this.prisma.staff.update({
-      where: { id: staff.id },
-      data: { role: dto.newRole },
-    });
-
-    await this.prisma.auditLog.create({
-      data: {
-        staffId: staff.id,
-        eventType: SecurityEventType.ROLE_CHANGED,
-        details: {
-          previousRole,
-          newRole: dto.newRole,
-          changedByStaffId: dto.changedByStaffId,
-          reason: dto.reason,
-        },
-        ipAddress,
-      },
-    });
-
-    return updatedStaff;
   }
 }

@@ -6,11 +6,16 @@ import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { CurrentStaff } from './decorators/current-staff.decorator';
 import { SessionService } from './session.service';
+import { StaffManagementService } from './staff-management.service';
+import { UpdateStaffRoleDto } from './dto/auth.dto';
 
 @Controller('api/staff')
 @UseGuards(AuthGuard, RolesGuard)
 export class StaffController {
-  constructor(private readonly sessionService: SessionService) {}
+  constructor(
+    private readonly sessionService: SessionService,
+    private readonly staffManagementService: StaffManagementService
+  ) {}
 
   @Get('me')
   async getMe(@CurrentStaff() staff: Staff) {
@@ -34,7 +39,10 @@ export class StaffController {
     const revokedCount = await this.sessionService.revokeAllStaffSessions(
       targetStaffId,
       managerStaffId,
-      req.ip
+      {
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'],
+      }
     );
     return {
       message: 'Staff sessions revoked successfully',
@@ -44,22 +52,25 @@ export class StaffController {
   }
 
   @Patch(':id/role')
+  @HttpCode(HttpStatus.OK)
   @Roles(StaffRole.MANAGER)
   async updateStaffRole(
     @Param('id') targetStaffId: string,
-    @Body('role') newRole: StaffRole,
-    @Body('reason') reason: string,
+    @Body() body: UpdateStaffRoleDto,
     @CurrentStaff('id') managerStaffId: string,
     @Req() req: Request
   ) {
-    const updatedStaff = await this.sessionService.changeStaffRole(
+    const updatedStaff = await this.staffManagementService.changeStaffRole(
       {
         targetStaffId,
-        newRole,
+        newRole: body.role,
         changedByStaffId: managerStaffId,
-        reason,
+        reason: body.reason,
       },
-      req.ip
+      {
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'],
+      }
     );
 
     return {

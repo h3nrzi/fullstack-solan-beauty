@@ -3,11 +3,13 @@ import { PrismaClient, StaffRole } from '@salon/database';
 import * as argon2 from 'argon2';
 import * as crypto from 'crypto';
 import { SessionService } from '../src/auth/session.service';
+import { StaffManagementService } from '../src/auth/staff-management.service';
 
 const prisma = new PrismaClient();
 
-describe('SessionService - Seam 2: Domain Service Seam', () => {
+describe('SessionService & StaffManagementService - Seam 2: Domain Service Seam', () => {
   let sessionService: SessionService;
+  let staffManagementService: StaffManagementService;
 
   beforeEach(async () => {
     await prisma.auditLog.deleteMany();
@@ -17,6 +19,7 @@ describe('SessionService - Seam 2: Domain Service Seam', () => {
     await prisma.staff.deleteMany();
 
     sessionService = new SessionService(prisma);
+    staffManagementService = new StaffManagementService(prisma);
   });
 
   afterAll(async () => {
@@ -24,7 +27,6 @@ describe('SessionService - Seam 2: Domain Service Seam', () => {
   });
 
   it('validates active session and reflects immediate role change or revocation on the very next request', async () => {
-    // 1. Create staff member
     const passwordHash = await argon2.hash('SecretPass123!');
     const staff = await prisma.staff.create({
       data: {
@@ -36,7 +38,6 @@ describe('SessionService - Seam 2: Domain Service Seam', () => {
       },
     });
 
-    // 2. Create active session
     const sessionToken = crypto.randomBytes(48).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(sessionToken).digest('hex');
     await prisma.session.create({
@@ -47,31 +48,31 @@ describe('SessionService - Seam 2: Domain Service Seam', () => {
       },
     });
 
-    // 3. Validation succeeds and returns RECEPTIONIST role
+    // 1. Initial check
     const initialValidation = await sessionService.validateSession(sessionToken);
     expect(initialValidation.staff.id).toBe(staff.id);
     expect(initialValidation.staff.role).toBe(StaffRole.RECEPTIONIST);
 
-    // 4. Role changes to ARTIST in database
-    await sessionService.changeStaffRole({
+    // 2. Role changes in database via StaffManagementService
+    await staffManagementService.changeStaffRole({
       targetStaffId: staff.id,
       newRole: StaffRole.ARTIST,
       changedByStaffId: 'manager-admin-id',
     });
 
-    // 5. Very next request with same session immediately reflects ARTIST
+    // 3. Very next request with same session immediately reflects ARTIST
     const updatedValidation = await sessionService.validateSession(sessionToken);
     expect(updatedValidation.staff.role).toBe(StaffRole.ARTIST);
 
-    // 6. Manager revokes staff sessions
+    // 4. Manager revokes staff sessions
     await sessionService.revokeAllStaffSessions(staff.id, 'manager-admin-id');
 
-    // 7. Very next request is rejected with session revoked
+    // 5. Very next request is rejected with session revoked
     await expect(sessionService.validateSession(sessionToken)).rejects.toThrow(
       'Session revoked or expired'
     );
 
-    // 8. Historical records must be preserved (session row still exists with revokedAt timestamp)
+    // 6. Historical records preserved
     const sessionInDb = await prisma.session.findFirst({
       where: { tokenHash },
     });
@@ -101,13 +102,11 @@ describe('SessionService - Seam 2: Domain Service Seam', () => {
       },
     });
 
-    // Deactivate staff
     await prisma.staff.update({
       where: { id: staff.id },
       data: { isActive: false },
     });
 
-    // Request is rejected immediately
     await expect(sessionService.validateSession(sessionToken)).rejects.toThrow(
       'Staff account deactivated'
     );

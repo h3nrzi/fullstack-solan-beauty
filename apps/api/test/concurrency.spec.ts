@@ -5,7 +5,6 @@ import * as crypto from 'crypto';
 import { StaffAuthService } from '../src/auth/staff-auth.service';
 
 describe('Concurrency - Seam 3: Database Concurrency Seam', () => {
-  // Two independent database clients representing concurrent independent connections
   const prisma1 = new PrismaClient();
   const prisma2 = new PrismaClient();
 
@@ -44,27 +43,14 @@ describe('Concurrency - Seam 3: Database Concurrency Seam', () => {
     const authService1 = new StaffAuthService(prisma1);
     const authService2 = new StaffAuthService(prisma2);
 
-    // Initial logins to get temp challenge tokens
-    const loginRes1 = await authService1.login({
-      username: 'race_staff_user',
-      password: 'SecretPass123!',
-    });
+    const loginRes1 = await authService1.login('race_staff_user', 'SecretPass123!');
+    const loginRes2 = await authService2.login('race_staff_user', 'SecretPass123!');
 
-    const loginRes2 = await authService2.login({
-      username: 'race_staff_user',
-      password: 'SecretPass123!',
-    });
-
-    // Fire both verifyRecoveryCode requests concurrently with Promise.allSettled
     const [result1, result2] = await Promise.allSettled([
-      authService1.verifyRecoveryCode({
-        tempToken: loginRes1.tempToken!,
-        recoveryCode: rawRecoveryCode,
+      authService1.verifyRecoveryCode(loginRes1.tempToken!, rawRecoveryCode, {
         ipAddress: '192.168.1.1',
       }),
-      authService2.verifyRecoveryCode({
-        tempToken: loginRes2.tempToken!,
-        recoveryCode: rawRecoveryCode,
+      authService2.verifyRecoveryCode(loginRes2.tempToken!, rawRecoveryCode, {
         ipAddress: '192.168.1.2',
       }),
     ]);
@@ -72,17 +58,14 @@ describe('Concurrency - Seam 3: Database Concurrency Seam', () => {
     const successes = [result1, result2].filter((r) => r.status === 'fulfilled');
     const failures = [result1, result2].filter((r) => r.status === 'rejected');
 
-    // Exactly one should succeed, exactly one should fail!
     expect(successes.length).toBe(1);
     expect(failures.length).toBe(1);
 
-    // Verify in database: exactly 1 session was created, not 2
     const sessions = await prisma1.session.findMany({
       where: { staffId: staff.id },
     });
     expect(sessions.length).toBe(1);
 
-    // Verify recovery code usedAt is stamped once
     const usedCode = await prisma1.recoveryCode.findFirst({
       where: { staffId: staff.id },
     });

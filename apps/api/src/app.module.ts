@@ -3,6 +3,7 @@ import { PrismaClient } from '@salon/database';
 import { PrismaService } from './prisma.service';
 import { StaffAuthService } from './auth/staff-auth.service';
 import { SessionService } from './auth/session.service';
+import { StaffManagementService } from './auth/staff-management.service';
 import { IndependentRecoveryService } from './auth/independent-recovery.service';
 import { AuthController } from './auth/auth.controller';
 import { StaffController } from './auth/staff.controller';
@@ -21,6 +22,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
     },
     StaffAuthService,
     SessionService,
+    StaffManagementService,
     IndependentRecoveryService,
     AuthGuard,
     RolesGuard,
@@ -28,6 +30,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
   exports: [
     StaffAuthService,
     SessionService,
+    StaffManagementService,
     IndependentRecoveryService,
     AuthGuard,
     RolesGuard,

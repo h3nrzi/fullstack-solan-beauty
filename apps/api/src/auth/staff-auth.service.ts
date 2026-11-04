@@ -3,31 +3,7 @@ import { PrismaClient, SecurityEventType, Staff } from '@salon/database';
 import * as argon2 from 'argon2';
 import * as crypto from 'crypto';
 import { authenticator } from 'otplib';
-
-export interface LoginDto {
-  username: string;
-  password: string;
-  ipAddress?: string;
-}
-
-export interface VerifyMfaDto {
-  tempToken: string;
-  code: string;
-  ipAddress?: string;
-  userAgent?: string;
-}
-
-export interface VerifyRecoveryCodeDto {
-  tempToken: string;
-  recoveryCode: string;
-  ipAddress?: string;
-  userAgent?: string;
-}
-
-export interface AuthSessionResult {
-  sessionToken: string;
-  staff: Staff;
-}
+import { RequestContext } from './dto/auth.dto';
 
 export interface LoginResult {
   mfaRequired: boolean;
@@ -35,7 +11,11 @@ export interface LoginResult {
   staffId: string;
 }
 
-// In-memory or cache store for tempTokens during MFA challenge (5 minutes TTL)
+export interface AuthSessionResult {
+  sessionToken: string;
+  staff: Staff;
+}
+
 interface MfaChallengePayload {
   staffId: string;
   expiresAt: number;
@@ -47,67 +27,59 @@ export class StaffAuthService {
 
   constructor(private readonly prisma: PrismaClient) {}
 
-  async login(dto: LoginDto): Promise<LoginResult> {
+  async login(username: string, password: string, context?: RequestContext): Promise<LoginResult> {
     const staff = await this.prisma.staff.findUnique({
-      where: { username: dto.username },
+      where: { username },
     });
 
     if (!staff || !staff.isActive) {
       await this.prisma.auditLog.create({
         data: {
           eventType: SecurityEventType.LOGIN_FAILED,
-          details: { username: dto.username, reason: 'Staff not found or inactive' },
-          ipAddress: dto.ipAddress,
+          details: { username, reason: 'Staff not found or inactive' },
+          ipAddress: context?.ipAddress,
         },
       });
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isPasswordValid = await argon2.verify(staff.passwordHash, dto.password);
+    const isPasswordValid = await argon2.verify(staff.passwordHash, password);
     if (!isPasswordValid) {
       await this.prisma.auditLog.create({
         data: {
           staffId: staff.id,
           eventType: SecurityEventType.LOGIN_FAILED,
           details: { reason: 'Incorrect password' },
-          ipAddress: dto.ipAddress,
+          ipAddress: context?.ipAddress,
         },
       });
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (staff.mfaEnabled) {
-      const tempToken = crypto.randomBytes(32).toString('hex');
-      StaffAuthService.mfaChallenges.set(tempToken, {
+    const tempToken = crypto.randomBytes(32).toString('hex');
+    StaffAuthService.mfaChallenges.set(tempToken, {
+      staffId: staff.id,
+      expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
         staffId: staff.id,
-        expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
-      });
+        eventType: SecurityEventType.MFA_CHALLENGE,
+        details: { tempTokenIssued: true },
+        ipAddress: context?.ipAddress,
+      },
+    });
 
-      await this.prisma.auditLog.create({
-        data: {
-          staffId: staff.id,
-          eventType: SecurityEventType.MFA_CHALLENGE,
-          details: { tempTokenIssued: true },
-          ipAddress: dto.ipAddress,
-        },
-      });
-
-      return {
-        mfaRequired: true,
-        tempToken,
-        staffId: staff.id,
-      };
-    }
-
-    // If MFA was not enabled (not typical for staff, but supported)
     return {
-      mfaRequired: false,
+      mfaRequired: true,
+      tempToken,
       staffId: staff.id,
     };
   }
 
-  async verifyMfa(dto: VerifyMfaDto): Promise<AuthSessionResult> {
-    const challenge = StaffAuthService.getMfaChallenge(dto.tempToken);
+  async verifyMfa(tempToken: string, code: string, context?: RequestContext): Promise<AuthSessionResult> {
+    const challenge = StaffAuthService.getMfaChallenge(tempToken);
     if (!challenge) {
       throw new UnauthorizedException('Invalid or expired MFA session');
     }
@@ -117,12 +89,12 @@ export class StaffAuthService {
     });
 
     if (!staff || !staff.isActive || !staff.mfaSecret) {
-      StaffAuthService.consumeMfaChallenge(dto.tempToken);
+      StaffAuthService.consumeMfaChallenge(tempToken);
       throw new UnauthorizedException('Staff account not active or misconfigured');
     }
 
     const isValid = authenticator.verify({
-      token: dto.code,
+      token: code,
       secret: staff.mfaSecret,
     });
 
@@ -132,38 +104,22 @@ export class StaffAuthService {
           staffId: staff.id,
           eventType: SecurityEventType.MFA_FAILED,
           details: { reason: 'Incorrect TOTP code' },
-          ipAddress: dto.ipAddress,
+          ipAddress: context?.ipAddress,
         },
       });
       throw new UnauthorizedException('Invalid MFA code');
     }
 
-    // Burn tempToken so it cannot be used again
-    StaffAuthService.consumeMfaChallenge(dto.tempToken);
+    StaffAuthService.consumeMfaChallenge(tempToken);
 
-    // Create session token and store sha256 hash in DB
-    const sessionToken = crypto.randomBytes(48).toString('hex');
-    const tokenHash = crypto.createHash('sha256').update(sessionToken).digest('hex');
-
-    // 12 hours expiration
-    const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000);
-
-    await this.prisma.session.create({
-      data: {
-        staffId: staff.id,
-        tokenHash,
-        ipAddress: dto.ipAddress,
-        userAgent: dto.userAgent,
-        expiresAt,
-      },
-    });
+    const session = await this.issueSession(this.prisma, staff.id, context);
 
     await this.prisma.auditLog.create({
       data: {
         staffId: staff.id,
         eventType: SecurityEventType.MFA_SUCCESS,
         details: { method: 'TOTP' },
-        ipAddress: dto.ipAddress,
+        ipAddress: context?.ipAddress,
       },
     });
 
@@ -172,42 +128,41 @@ export class StaffAuthService {
         staffId: staff.id,
         eventType: SecurityEventType.LOGIN_SUCCESS,
         details: { method: 'PASSWORD_AND_MFA' },
-        ipAddress: dto.ipAddress,
+        ipAddress: context?.ipAddress,
       },
     });
 
     return {
-      sessionToken,
+      sessionToken: session.sessionToken,
       staff,
     };
   }
 
-  async verifyRecoveryCode(dto: VerifyRecoveryCodeDto): Promise<AuthSessionResult> {
-    const challenge = StaffAuthService.getMfaChallenge(dto.tempToken);
+  async verifyRecoveryCode(tempToken: string, recoveryCode: string, context?: RequestContext): Promise<AuthSessionResult> {
+    const challenge = StaffAuthService.getMfaChallenge(tempToken);
     if (!challenge) {
       throw new UnauthorizedException('Invalid or expired MFA session');
     }
 
-    const hashedCode = crypto.createHash('sha256').update(dto.recoveryCode).digest('hex');
+    const hashedCode = crypto.createHash('sha256').update(recoveryCode).digest('hex');
 
-    // Run in atomic transaction to prevent race conditions / double spend
     return await this.prisma.$transaction(async (tx) => {
       const staff = await tx.staff.findUnique({
         where: { id: challenge.staffId },
       });
 
       if (!staff || !staff.isActive) {
-        StaffAuthService.consumeMfaChallenge(dto.tempToken);
+        StaffAuthService.consumeMfaChallenge(tempToken);
         throw new UnauthorizedException('Staff account not active or misconfigured');
       }
 
-      // Atomically burn the recovery code only if it has not been used yet.
-      // In PostgreSQL, this locks the row and ensures exactly one concurrent transaction succeeds.
+      // Atomically burn the recovery code only if it has not been used or revoked yet.
       const updateResult = await tx.recoveryCode.updateMany({
         where: {
           staffId: staff.id,
           codeHash: hashedCode,
           usedAt: null,
+          revokedAt: null,
         },
         data: {
           usedAt: new Date(),
@@ -220,36 +175,22 @@ export class StaffAuthService {
             staffId: staff.id,
             eventType: SecurityEventType.MFA_FAILED,
             details: { reason: 'Invalid or already used recovery code' },
-            ipAddress: dto.ipAddress,
+            ipAddress: context?.ipAddress,
           },
         });
         throw new UnauthorizedException('Invalid or already used recovery code');
       }
 
-      // Burn the temp challenge token
-      StaffAuthService.consumeMfaChallenge(dto.tempToken);
+      StaffAuthService.consumeMfaChallenge(tempToken);
 
-      // Create session
-      const sessionToken = crypto.randomBytes(48).toString('hex');
-      const tokenHash = crypto.createHash('sha256').update(sessionToken).digest('hex');
-      const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000);
-
-      await tx.session.create({
-        data: {
-          staffId: staff.id,
-          tokenHash,
-          ipAddress: dto.ipAddress,
-          userAgent: dto.userAgent,
-          expiresAt,
-        },
-      });
+      const session = await this.issueSession(tx, staff.id, context);
 
       await tx.auditLog.create({
         data: {
           staffId: staff.id,
           eventType: SecurityEventType.RECOVERY_CODE_USED,
           details: { codeHash: hashedCode },
-          ipAddress: dto.ipAddress,
+          ipAddress: context?.ipAddress,
         },
       });
 
@@ -258,15 +199,40 @@ export class StaffAuthService {
           staffId: staff.id,
           eventType: SecurityEventType.LOGIN_SUCCESS,
           details: { method: 'RECOVERY_CODE' },
-          ipAddress: dto.ipAddress,
+          ipAddress: context?.ipAddress,
         },
       });
 
       return {
-        sessionToken,
+        sessionToken: session.sessionToken,
         staff,
       };
     });
+  }
+
+  /**
+   * Helper to issue session and store SHA-256 hash in DB, avoiding code duplication.
+   */
+  private async issueSession(
+    dbClient: any,
+    staffId: string,
+    context?: RequestContext
+  ): Promise<{ sessionToken: string }> {
+    const sessionToken = crypto.randomBytes(48).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(sessionToken).digest('hex');
+    const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000);
+
+    await dbClient.session.create({
+      data: {
+        staffId,
+        tokenHash,
+        ipAddress: context?.ipAddress,
+        userAgent: context?.userAgent,
+        expiresAt,
+      },
+    });
+
+    return { sessionToken };
   }
 
   static getMfaChallenge(tempToken: string): MfaChallengePayload | null {

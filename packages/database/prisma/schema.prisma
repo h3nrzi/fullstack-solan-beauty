@@ -45,7 +45,7 @@ model Staff {
   passwordHash String
   role         StaffRole
   isActive     Boolean   @default(true)
-  mfaEnabled   Boolean   @default(false)
+  mfaEnabled   Boolean   @default(true)
   mfaSecret    String?
 
   sessions          Session[]
@@ -76,15 +76,16 @@ model Session {
 }
 
 model RecoveryCode {
-  id       String    @id @default(uuid())
-  staffId  String
-  codeHash String
-  usedAt   DateTime?
-  createdAt DateTime @default(now())
+  id        String    @id @default(uuid())
+  staffId   String
+  codeHash  String
+  usedAt    DateTime?
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
 
   staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
-  @@index([staffId, usedAt])
+  @@index([staffId, usedAt, revokedAt])
 }
 
 model IndependentRecoveryRequest {
@@ -93,6 +94,7 @@ model IndependentRecoveryRequest {
   requesterNote   String
   status          RecoveryRequestStatus @default(PENDING)
   approverStaffId String?
+  claimTokenHash  String?
   rejectionReason String?
   resolvedAt      DateTime?
   createdAt       DateTime              @default(now())

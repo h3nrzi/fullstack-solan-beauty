@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { PrismaClient, StaffRole } from '@salon/database';
 import * as argon2 from 'argon2';
+import * as crypto from 'crypto';
 import { IndependentRecoveryService } from '../src/auth/independent-recovery.service';
 
 const prisma = new PrismaClient();
@@ -35,7 +36,6 @@ describe('IndependentRecoveryService - Seam 2: Domain Service Seam', () => {
       },
     });
 
-    // Manager requests emergency recovery because MFA factor and recovery codes were lost
     const request = await recoveryService.createRecoveryRequest({
       targetStaffId: manager1.id,
       requesterNote: 'Lost mobile device and recovery codes',
@@ -47,12 +47,12 @@ describe('IndependentRecoveryService - Seam 2: Domain Service Seam', () => {
     await expect(
       recoveryService.approveRecoveryRequest({
         requestId: request.id,
-        approverStaffId: manager1.id, // Same manager!
+        approverStaffId: manager1.id,
       })
     ).rejects.toThrow('Self-approval is forbidden');
   });
 
-  it('allows approval by an independent manager, revoking old sessions and generating new factor credentials', async () => {
+  it('allows approval by an independent manager, delivering claimToken to target staff and preserving recovery code history via soft revocation', async () => {
     const passwordHash = await argon2.hash('ManagerPass123!');
     const manager1 = await prisma.staff.create({
       data: {
@@ -76,7 +76,16 @@ describe('IndependentRecoveryService - Seam 2: Domain Service Seam', () => {
       },
     });
 
-    // Create an old active session for manager1
+    // Seed old recovery code for manager1
+    const oldCodeHash = crypto.createHash('sha256').update('OLD-RECOVERY-CODE').digest('hex');
+    await prisma.recoveryCode.create({
+      data: {
+        staffId: manager1.id,
+        codeHash: oldCodeHash,
+      },
+    });
+
+    // Seed active session for manager1
     await prisma.session.create({
       data: {
         staffId: manager1.id,
@@ -90,22 +99,35 @@ describe('IndependentRecoveryService - Seam 2: Domain Service Seam', () => {
       requesterNote: 'Device lost, verified in person by co-manager',
     });
 
-    // Manager 2 approves
+    // 1. Manager 2 approves (receives claimToken, NOT manager1's secret credentials!)
     const approved = await recoveryService.approveRecoveryRequest({
       requestId: request.id,
       approverStaffId: manager2.id,
     });
 
     expect(approved.status).toBe('APPROVED');
-    expect(approved.newRecoveryCodes.length).toBeGreaterThan(0);
+    expect(approved.claimToken).toBeDefined();
 
-    // Old session must have been revoked
-    const oldSessions = await prisma.session.findMany({
+    // 2. Target manager claims their recovery credentials
+    const claimed = await recoveryService.claimRecovery(request.id, approved.claimToken);
+    expect(claimed.targetStaffId).toBe(manager1.id);
+    expect(claimed.newRecoveryCodes.length).toBeGreaterThan(0);
+    expect(claimed.newMfaSecret).toBeDefined();
+
+    // 3. Old recovery codes must be SOFT-REVOKED (revokedAt is set, not deleted!)
+    const oldCodes = await prisma.recoveryCode.findMany({
+      where: { staffId: manager1.id, codeHash: oldCodeHash },
+    });
+    expect(oldCodes.length).toBe(1);
+    expect(oldCodes[0].revokedAt).not.toBeNull();
+
+    // 4. Old sessions revoked
+    const activeSessions = await prisma.session.findMany({
       where: { staffId: manager1.id, revokedAt: null },
     });
-    expect(oldSessions.length).toBe(0);
+    expect(activeSessions.length).toBe(0);
 
-    // Audit logs must record both request and approval
+    // 5. Audit logs recorded
     const logs = await prisma.auditLog.findMany({
       where: { staffId: manager1.id },
     });
