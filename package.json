@@ -2,12 +2,14 @@
   "name": "salon-beauty-monorepo",
   "private": true,
   "scripts": {
+    "dev": "concurrently -n \"API,WEB\" -c \"blue,magenta\" --kill-others \"pnpm --filter @salon/api run dev\" \"pnpm --filter @salon/web run dev\"",
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
     "typecheck": "pnpm -r run typecheck",
     "lint": "pnpm -r run lint"
   },
   "devDependencies": {
+    "concurrently": "^10.0.6",
     "typescript": "^5.8.2"
   }
 }
