@@ -1,4 +1,11 @@
-import { ServiceDto, PublicArtistProfileDto, SharedResourceDto, StaffProfile } from '@salon/shared';
+import {
+  ServiceDto,
+  PublicArtistProfileDto,
+  SharedResourceDto,
+  StaffProfile,
+  CustomerDto,
+  CustomerBookingDto,
+} from '@salon/shared';
 import { cookies } from 'next/headers';
 
 export function getApiBaseUrl(): string {
@@ -99,3 +106,82 @@ export async function getCurrentStaff(): Promise<StaffProfile | null> {
     return null;
   }
 }
+
+/**
+ * Server-side fetcher for current logged-in customer
+ */
+export async function getCurrentCustomer(): Promise<CustomerDto | null> {
+  try {
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('salon_customer_session')?.value;
+    if (!sessionToken) {
+      return null;
+    }
+
+    const res = await fetch(`${getApiBaseUrl()}/api/customer/me`, {
+      headers: {
+        Authorization: `Bearer ${sessionToken}`,
+        Cookie: `salon_customer_session=${sessionToken}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const body = await res.json();
+    return body.customer as CustomerDto;
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'digest' in error &&
+      (error as { digest: string }).digest === 'DYNAMIC_SERVER_USAGE'
+    ) {
+      throw error;
+    }
+    console.warn('[getCurrentCustomer] Error checking customer session:', error);
+    return null;
+  }
+}
+
+/**
+ * Server-side fetcher for current customer's bookings
+ */
+export async function getCustomerBookings(): Promise<CustomerBookingDto[]> {
+  try {
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('salon_customer_session')?.value;
+    if (!sessionToken) {
+      return [];
+    }
+
+    const res = await fetch(`${getApiBaseUrl()}/api/customer/bookings`, {
+      headers: {
+        Authorization: `Bearer ${sessionToken}`,
+        Cookie: `salon_customer_session=${sessionToken}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      return [];
+    }
+
+    const body = await res.json();
+    return body.bookings as CustomerBookingDto[];
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'digest' in error &&
+      (error as { digest: string }).digest === 'DYNAMIC_SERVER_USAGE'
+    ) {
+      throw error;
+    }
+    console.warn('[getCustomerBookings] Error fetching bookings:', error);
+    return [];
+  }
+}
+

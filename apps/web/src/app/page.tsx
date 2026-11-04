@@ -32,32 +32,45 @@ export default function HomePage() {
             <span>خدمات و آرتیست</span>
           </Link>
           <Link
-            href="/login"
+            href="/customer/account"
             className="flex flex-col items-center p-3 rounded-xl bg-stone-50 border border-stone-100 hover:bg-rose-50/60 hover:border-rose-200 transition-colors"
           >
             <ShieldCheck className="w-5 h-5 text-rose-800 mb-1" aria-hidden="true" />
-            <span>ورود امن</span>
+            <span>حساب مشتری</span>
+          </Link>
+          <Link
+            href="/login"
+            className="flex flex-col items-center p-3 rounded-xl bg-stone-50 border border-stone-100 hover:bg-rose-50/60 hover:border-rose-200 transition-colors"
+          >
+            <ShieldCheck className="w-5 h-5 text-stone-500 mb-1" aria-hidden="true" />
+            <span>ورود پرسنل</span>
           </Link>
         </div>
 
         <div className="flex flex-col gap-3">
           <Link
-            href="/booking"
+            href="/customer/account"
             className="inline-flex w-full justify-center items-center py-3.5 px-4 rounded-xl text-white bg-rose-900 hover:bg-rose-800 font-semibold transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.99]"
+          >
+            ورود به حساب مشتری (پیامکی)
+          </Link>
+          <Link
+            href="/booking"
+            className="inline-flex w-full justify-center items-center py-3 px-4 rounded-xl text-stone-900 bg-stone-100 hover:bg-stone-200 border border-stone-200/80 font-semibold transition-all duration-200 shadow-sm"
           >
             بررسی ظرفیت و زمان‌های آزاد خدمات
           </Link>
           <Link
             href="/services"
-            className="inline-flex w-full justify-center items-center py-3 px-4 rounded-xl text-stone-900 bg-stone-100 hover:bg-stone-200 border border-stone-200/80 font-semibold transition-all duration-200 shadow-sm"
+            className="inline-flex w-full justify-center items-center py-2.5 px-4 rounded-xl text-stone-700 bg-white hover:bg-stone-50 border border-stone-200 font-medium transition-all text-sm"
           >
             معرفی و مقایسه خدمات و آرتیست‌ها
           </Link>
           <Link
             href="/login"
-            className="inline-flex w-full justify-center items-center py-2.5 px-4 rounded-xl text-stone-700 bg-white hover:bg-stone-50 border border-stone-200 font-medium transition-all text-sm"
+            className="inline-flex w-full justify-center items-center py-2 px-4 text-stone-500 hover:text-stone-800 text-xs"
           >
-            ورود به پنل کارکنان
+            ورود پرسنل سالن
           </Link>
         </div>
       </div>

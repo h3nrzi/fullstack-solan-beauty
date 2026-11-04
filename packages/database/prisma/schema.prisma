@@ -40,6 +40,12 @@ enum SecurityEventType {
   SERVICE_PHASES_CONFIGURED
   SCHEDULE_RULE_CHANGED
   CAPACITY_CONFLICT_DETECTED
+  CUSTOMER_OTP_REQUESTED
+  CUSTOMER_OTP_VERIFIED
+  CUSTOMER_OTP_FAILED
+  CUSTOMER_LOGIN_SUCCESS
+  CUSTOMER_SESSION_REVOKED
+  CUSTOMER_UNAUTHORIZED_ACCESS_ATTEMPT
 }
 
 enum RecoveryRequestStatus {
@@ -120,16 +126,19 @@ model IndependentRecoveryRequest {
 }
 
 model AuditLog {
-  id        String            @id @default(uuid())
-  staffId   String?
-  eventType SecurityEventType
-  details   Json?
-  ipAddress String?
-  createdAt DateTime          @default(now())
+  id         String            @id @default(uuid())
+  staffId    String?
+  customerId String?
+  eventType  SecurityEventType
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime          @default(now())
 
-  staff Staff? @relation(fields: [staffId], references: [id], onDelete: SetNull)
+  staff    Staff?    @relation(fields: [staffId], references: [id], onDelete: SetNull)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
 
   @@index([staffId, eventType])
+  @@index([customerId, eventType])
   @@index([createdAt])
 }
 
@@ -327,17 +336,69 @@ model ServiceBooking {
   status        BookingStatus @default(CONFIRMED)
   isImpacted    Boolean       @default(false)
   impactReason  String?
+  customerId    String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
   service     Service                            @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   artist      ArtistProfile                      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  customer    Customer?                          @relation(fields: [customerId], references: [id], onDelete: SetNull)
   allocations ServiceBookingResourceAllocation[]
 
   @@index([artistId, startTime, endTime])
   @@index([serviceId, startTime])
+  @@index([customerId])
   @@index([status, isImpacted])
 }
+
+model Customer {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  fullName  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions  CustomerSession[]
+  otpCodes  CustomerOtp[]
+  auditLogs AuditLog[]
+  bookings  ServiceBooking[]
+
+  @@index([phone, isActive])
+}
+
+model CustomerOtp {
+  id          String    @id @default(uuid())
+  phone       String
+  codeHash    String
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(5)
+  expiresAt   DateTime
+  usedAt      DateTime?
+  customerId  String?
+  createdAt   DateTime  @default(now())
+
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([phone, usedAt, expiresAt])
+  @@index([phone, createdAt])
+}
+
+model CustomerSession {
+  id         String    @id @default(uuid())
+  customerId String
+  tokenHash  String    @unique
+  ipAddress  String?
+  userAgent  String?
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId, revokedAt])
+}
+
 
 model ServiceBookingResourceAllocation {
   id         String   @id @default(uuid())

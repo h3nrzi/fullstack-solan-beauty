@@ -109,6 +109,12 @@ export const SecurityEventType = {
   SERVICE_PHASES_CONFIGURED: 'SERVICE_PHASES_CONFIGURED',
   SCHEDULE_RULE_CHANGED: 'SCHEDULE_RULE_CHANGED',
   CAPACITY_CONFLICT_DETECTED: 'CAPACITY_CONFLICT_DETECTED',
+  CUSTOMER_OTP_REQUESTED: 'CUSTOMER_OTP_REQUESTED',
+  CUSTOMER_OTP_VERIFIED: 'CUSTOMER_OTP_VERIFIED',
+  CUSTOMER_OTP_FAILED: 'CUSTOMER_OTP_FAILED',
+  CUSTOMER_LOGIN_SUCCESS: 'CUSTOMER_LOGIN_SUCCESS',
+  CUSTOMER_SESSION_REVOKED: 'CUSTOMER_SESSION_REVOKED',
+  CUSTOMER_UNAUTHORIZED_ACCESS_ATTEMPT: 'CUSTOMER_UNAUTHORIZED_ACCESS_ATTEMPT',
 } as const;
 
 export type SecurityEventType = (typeof SecurityEventType)[keyof typeof SecurityEventType];
@@ -412,4 +418,40 @@ export interface RuleImpactResultDto {
   impactedCount: number;
   impactedBookings: ImpactedBookingDto[];
 }
+
+// ============================================================================
+// Ticket 04: Customer Auth, OTP & Account Management
+// ============================================================================
+
+export interface CustomerDto {
+  id: string;
+  phone: string;
+  fullName?: string | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CustomerBookingDto {
+  id: string;
+  serviceId: string;
+  serviceName: string;
+  artistId: string;
+  artistName?: string | null;
+  startTime: Date | string;
+  endTime: Date | string;
+  status: BookingStatus;
+}
+
+export interface RequestOtpResponse {
+  success: boolean;
+  expiresInSeconds: number;
+}
+
+export interface VerifyOtpResponse {
+  success: boolean;
+  sessionToken: string;
+  customer: CustomerDto;
+}
+
 
