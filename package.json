@@ -5,6 +5,7 @@
     "dev": "concurrently -n \"API,WEB\" -c \"blue,magenta\" --kill-others \"pnpm --filter @salon/api run dev\" \"pnpm --filter @salon/web run dev\"",
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
+    "db:seed": "pnpm --filter @salon/database db:seed",
     "typecheck": "pnpm -r run typecheck",
     "lint": "pnpm -r run lint"
   },
