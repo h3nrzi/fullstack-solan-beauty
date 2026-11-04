@@ -1,0 +1,1886 @@
+{
+  "started_utc": "2026-11-02T16:36:35.584801+00:00",
+  "synthetic_only": true,
+  "cash_purchase_toman": 0,
+  "commands": [
+    {
+      "argv": [
+        "psql",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "psql (PostgreSQL) 14.23 (Homebrew)\n",
+      "stderr": "",
+      "stdin": null,
+      "seconds": 0.012441374999980326
+    },
+    {
+      "argv": [
+        "initdb",
+        "-D",
+        "/tmp/wf-local-dw67any0/data",
+        "-U",
+        "wf_validator",
+        "--auth-local=trust",
+        "--auth-host=reject",
+        "--no-locale"
+      ],
+      "returncode": 0,
+      "stdout": "The files belonging to this database system will be owned by user \"hossein\".\nThis user must also own the server process.\n\nThe database cluster will be initialized with locale \"C\".\nThe default database encoding has accordingly been set to \"SQL_ASCII\".\nThe default text search configuration will be set to \"english\".\n\nData page checksums are disabled.\n\ncreating directory /tmp/wf-local-dw67any0/data ... ok\ncreating subdirectories ... ok\nselecting dynamic shared memory implementation ... posix\nselecting default max_connections ... 100\nselecting default shared_buffers ... 128MB\nselecting default time zone ... Asia/Tehran\ncreating configuration files ... ok\nrunning bootstrap script ... ok\nperforming post-bootstrap initialization ... ok\nsyncing data to disk ... ok\n\nSuccess. You can now start the database server using:\n\n    pg_ctl -D /tmp/wf-local-dw67any0/data -l logfile start\n\n",
+      "stderr": "",
+      "stdin": null,
+      "seconds": 0.5183587499996065
+    },
+    {
+      "argv": [
+        "pg_ctl",
+        "-D",
+        "/tmp/wf-local-dw67any0/data",
+        "-l",
+        "/tmp/wf-local-dw67any0/postgres.log",
+        "-w",
+        "start"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to start.... done\nserver started\n",
+      "stderr": "",
+      "stdin": null,
+      "seconds": 0.120185040999786
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "postgres"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "CREATE DATABASE wf_synthetic",
+      "seconds": 0.06000379099896236
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "{\"version\" : \"PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit\", \"isolation\" : \"read committed\", \"fsync\" : \"on\", \"full_page_writes\" : \"on\", \"synchronous_commit\" : \"on\", \"listen_addresses\" : \"\"}\n",
+      "stderr": "",
+      "stdin": "SELECT json_build_object('version',version(),'isolation',current_setting('transaction_isolation'),'fsync',current_setting('fsync'),'full_page_writes',current_setting('full_page_writes'),'synchronous_commit',current_setting('synchronous_commit'),'listen_addresses',current_setting('listen_addresses'))",
+      "seconds": 0.013430708000669256
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "CREATE EXTENSION btree_gist;\nCREATE TABLE allocation (\n id bigserial PRIMARY KEY, booking text NOT NULL, unit text NOT NULL,\n span int4range NOT NULL CHECK (NOT isempty(span)),\n EXCLUDE USING gist (unit WITH =, span WITH &&)\n);\nCREATE TABLE unit (id int PRIMARY KEY);\nINSERT INTO unit VALUES (1),(2),(3);\nCREATE TABLE outbox (id text PRIMARY KEY, state text NOT NULL DEFAULT 'pending', created_at timestamptz NOT NULL DEFAULT now());\nCREATE TABLE effect (id text PRIMARY KEY, executions int NOT NULL DEFAULT 1);\nCREATE TABLE payment (provider text NOT NULL, reference text NOT NULL, amount int NOT NULL CHECK(amount>0), receipt bigint GENERATED ALWAYS AS IDENTITY, PRIMARY KEY(provider,reference));\nCREATE FUNCTION receive_payment(p text, r text, a int) RETURNS bigint LANGUAGE plpgsql AS $$\nDECLARE stored payment;\nBEGIN\n INSERT INTO payment(provider,reference,amount) VALUES(p,r,a) ON CONFLICT DO NOTHING;\n SELECT * INTO STRICT stored FROM payment WHERE provider=p AND reference=r FOR UPDATE;\n IF stored.amount <> a THEN RAISE EXCEPTION 'payment amount mismatch'; END IF;\n INSERT INTO outbox(id) VALUES('payment:'||p||':'||r) ON CONFLICT DO NOTHING;\n RETURN stored.receipt;\nEND $$;\nCREATE TABLE stock (id int PRIMARY KEY, quantity int NOT NULL CHECK(quantity>=0));\nINSERT INTO stock VALUES (1,1);\nCREATE TABLE completion (id text PRIMARY KEY);\nCREATE TABLE commission (id text PRIMARY KEY REFERENCES completion, amount int NOT NULL);\nCREATE FUNCTION complete_service(k text, fail boolean) RETURNS void LANGUAGE plpgsql AS $$\nBEGIN\n INSERT INTO completion VALUES(k) ON CONFLICT DO NOTHING;\n IF NOT FOUND THEN RETURN; END IF;\n UPDATE stock SET quantity=quantity-1 WHERE id=1 AND quantity>=1;\n IF NOT FOUND THEN RAISE EXCEPTION 'insufficient stock'; END IF;\n IF fail THEN RAISE EXCEPTION 'injected before commission'; END IF;\n INSERT INTO commission VALUES(k,30);\n INSERT INTO outbox(id) VALUES('completion:'||k);\nEND $$;\nCREATE TABLE session (token text PRIMARY KEY, owner_id int NOT NULL, active boolean NOT NULL, can_read boolean NOT NULL);\nINSERT INTO session VALUES ('synthetic-owner',1,true,true),('synthetic-other',2,true,true),('synthetic-no-permission',1,true,false);\nCREATE TABLE media (id int PRIMARY KEY, owner_id int NOT NULL);\nINSERT INTO media VALUES(1,1);\n",
+      "seconds": 0.043923250001171255
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM pg_stat_activity WHERE application_name='wf_capacity' AND wait_event='PgSleep'",
+      "seconds": 0.011101041998699657
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\nDETAIL:  Key (unit, span)=(artist, [30,90)) conflicts with existing key (unit, span)=(artist, [0,60)).\n",
+      "stdin": "INSERT INTO allocation(booking,unit,span) VALUES('b','artist','[30,90)')",
+      "seconds": 2.003766166000787
+    },
+    {
+      "argv": [
+        "psql",
+        "async"
+      ],
+      "returncode": 0,
+      "stdout": "\n",
+      "stderr": "",
+      "stdin": "SET application_name='wf_capacity'; BEGIN; INSERT INTO allocation(booking,unit,span) VALUES('a','artist','[0,60)'); SELECT pg_sleep(2); COMMIT;"
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "INSERT INTO allocation(booking,unit,span) VALUES('adjacent','artist','[60,90)')",
+      "seconds": 0.03010554199863691
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "2\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM allocation WHERE unit='artist'",
+      "seconds": 0.020632333000321523
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "BEGIN; DO $$ DECLARE u int; BEGIN\n        PERFORM pg_advisory_xact_lock(440018);\n        SELECT candidate.id INTO u FROM unit candidate WHERE NOT EXISTS(SELECT 1 FROM allocation a WHERE a.unit='chair:'||candidate.id AND a.span && '[0,60)'::int4range) ORDER BY candidate.id LIMIT 1;\n        IF u IS NULL THEN RAISE EXCEPTION 'capacity exhausted'; END IF;\n        INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-2','chair:'||u,'[0,60)');\n        PERFORM pg_sleep(.1); END $$; COMMIT;",
+      "seconds": 0.12120729200069036
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "BEGIN; DO $$ DECLARE u int; BEGIN\n        PERFORM pg_advisory_xact_lock(440018);\n        SELECT candidate.id INTO u FROM unit candidate WHERE NOT EXISTS(SELECT 1 FROM allocation a WHERE a.unit='chair:'||candidate.id AND a.span && '[0,60)'::int4range) ORDER BY candidate.id LIMIT 1;\n        IF u IS NULL THEN RAISE EXCEPTION 'capacity exhausted'; END IF;\n        INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-1','chair:'||u,'[0,60)');\n        PERFORM pg_sleep(.1); END $$; COMMIT;",
+      "seconds": 0.22762608399898454
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "BEGIN; DO $$ DECLARE u int; BEGIN\n        PERFORM pg_advisory_xact_lock(440018);\n        SELECT candidate.id INTO u FROM unit candidate WHERE NOT EXISTS(SELECT 1 FROM allocation a WHERE a.unit='chair:'||candidate.id AND a.span && '[0,60)'::int4range) ORDER BY candidate.id LIMIT 1;\n        IF u IS NULL THEN RAISE EXCEPTION 'capacity exhausted'; END IF;\n        INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-0','chair:'||u,'[0,60)');\n        PERFORM pg_sleep(.1); END $$; COMMIT;",
+      "seconds": 0.3357122090001212
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  capacity exhausted\nCONTEXT:  PL/pgSQL function inline_code_block line 4 at RAISE\n",
+      "stdin": "BEGIN; DO $$ DECLARE u int; BEGIN\n        PERFORM pg_advisory_xact_lock(440018);\n        SELECT candidate.id INTO u FROM unit candidate WHERE NOT EXISTS(SELECT 1 FROM allocation a WHERE a.unit='chair:'||candidate.id AND a.span && '[0,60)'::int4range) ORDER BY candidate.id LIMIT 1;\n        IF u IS NULL THEN RAISE EXCEPTION 'capacity exhausted'; END IF;\n        INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-3','chair:'||u,'[0,60)');\n        PERFORM pg_sleep(.1); END $$; COMMIT;",
+      "seconds": 0.34037883300152316
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "3\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM allocation WHERE unit LIKE 'chair:%'",
+      "seconds": 0.02941350000037346
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "INSERT INTO allocation(booking,unit,span) VALUES('existing','last-resource','[0,60)')",
+      "seconds": 0.021094208999784314
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\nDETAIL:  Key (unit, span)=(last-resource, [30,60)) conflicts with existing key (unit, span)=(last-resource, [0,60)).\n",
+      "stdin": "BEGIN; INSERT INTO allocation(booking,unit,span) VALUES('partial','new-artist','[0,60)'),('partial','first-resource','[0,20)'); INSERT INTO outbox(id) VALUES('partial'); INSERT INTO allocation(booking,unit,span) VALUES('partial','last-resource','[30,60)'); COMMIT;",
+      "seconds": 0.016890875000171945
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "stdin": "SELECT (SELECT count(*) FROM allocation WHERE booking='partial')+(SELECT count(*) FROM outbox WHERE id='partial')",
+      "seconds": 0.013528165998650366
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SET application_name='notification-1'; SELECT receive_payment('synthetic','payment-1',100)",
+      "seconds": 0.01710662500045146
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SET application_name='notification-0'; SELECT receive_payment('synthetic','payment-1',100)",
+      "seconds": 0.01954124999974738
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SET application_name='notification-1'; SELECT receive_payment('synthetic','payment-1',100)",
+      "seconds": 0.023623749999387655
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SET application_name='notification-0'; SELECT receive_payment('synthetic','payment-1',100)",
+      "seconds": 0.019657582999570877
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SET application_name='notification-1'; SELECT receive_payment('synthetic','payment-1',100)",
+      "seconds": 0.026885207998930127
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SET application_name='notification-0'; SELECT receive_payment('synthetic','payment-1',100)",
+      "seconds": 0.027195291999305482
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SET application_name='notification-1'; SELECT receive_payment('synthetic','payment-1',100)",
+      "seconds": 0.02612470799977018
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SET application_name='notification-0'; SELECT receive_payment('synthetic','payment-1',100)",
+      "seconds": 0.027283792000162066
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SET application_name='notification-0'; SELECT receive_payment('synthetic','payment-1',100)",
+      "seconds": 0.032454583000799175
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SET application_name='notification-1'; SELECT receive_payment('synthetic','payment-1',100)",
+      "seconds": 0.03327683299903583
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SELECT receive_payment('synthetic','payment-1',100)",
+      "seconds": 0.012183709000964882
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SELECT receive_payment('synthetic','payment-1',100)",
+      "seconds": 0.011980041999777313
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  payment amount mismatch\nCONTEXT:  PL/pgSQL function receive_payment(text,text,integer) line 6 at RAISE\n",
+      "stdin": "SELECT receive_payment('synthetic','payment-1',101)",
+      "seconds": 0.011788333000367857
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM payment",
+      "seconds": 0.011061125000196625
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM outbox",
+      "seconds": 0.011012124999979278
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  injected before commission\nCONTEXT:  PL/pgSQL function complete_service(text,boolean) line 7 at RAISE\n",
+      "stdin": "SELECT complete_service('failure',true)",
+      "seconds": 0.012179207998997299
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SELECT quantity FROM stock",
+      "seconds": 0.011194249998879968
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "stdin": "SELECT (SELECT count(*) FROM completion)+(SELECT count(*) FROM commission)",
+      "seconds": 0.011123750000479049
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "\n",
+      "stderr": "",
+      "stdin": "SELECT complete_service('service-b',false)",
+      "seconds": 0.013660542001161957
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  insufficient stock\nCONTEXT:  PL/pgSQL function complete_service(text,boolean) line 6 at RAISE\n",
+      "stdin": "SELECT complete_service('service-a',false)",
+      "seconds": 0.012711249999483698
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "service-b\n",
+      "stderr": "",
+      "stdin": "SELECT id FROM completion",
+      "seconds": 0.010997041999871726
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "\n",
+      "stderr": "",
+      "stdin": "SELECT complete_service('service-b',false)",
+      "seconds": 0.011481792000267887
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "stdin": "SELECT quantity FROM stock",
+      "seconds": 0.010700625000026776
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM commission",
+      "seconds": 0.01115758400010236
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "TRUNCATE outbox; INSERT INTO outbox(id) SELECT 'event-'||i FROM generate_series(1,21) i",
+      "seconds": 0.01251866700113169
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "21\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM outbox WHERE state='pending'",
+      "seconds": 0.010772083000119892
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM pg_stat_activity WHERE application_name='wf_crash' AND wait_event='PgSleep'",
+      "seconds": 0.010480665998329641
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "t\n",
+      "stderr": "",
+      "stdin": "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE application_name='wf_crash'",
+      "seconds": 0.012017582999760634
+    },
+    {
+      "argv": [
+        "psql",
+        "async"
+      ],
+      "returncode": 2,
+      "stdout": "event-1\n",
+      "stderr": "FATAL:  terminating connection due to administrator command\nserver closed the connection unexpectedly\n\tThis probably means the server terminated abnormally\n\tbefore or while processing the request.\nconnection to server was lost\n",
+      "stdin": "SET application_name='wf_crash'; BEGIN; SELECT id FROM outbox WHERE id='event-1' FOR UPDATE; INSERT INTO effect(id) VALUES('event-1'); UPDATE outbox SET state='done' WHERE id='event-1'; SELECT pg_sleep(12); COMMIT;"
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM effect",
+      "seconds": 0.011135209000713076
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "pending\n",
+      "stderr": "",
+      "stdin": "SELECT state FROM outbox WHERE id='event-1'",
+      "seconds": 0.011367958999471739
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "stderr": "",
+      "stdin": "BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;",
+      "seconds": 0.2522337080008583
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "stderr": "",
+      "stdin": "BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;",
+      "seconds": 0.25264658400010376
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "21\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM outbox WHERE state='done'",
+      "seconds": 0.01402879200031748
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "21\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM effect",
+      "seconds": 0.020131166000282974
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "INSERT INTO outbox(id,state) VALUES('external-unknown','unknown')",
+      "seconds": 0.016703458999472787
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "\n",
+      "stderr": "",
+      "stdin": "BEGIN; WITH picked AS (SELECT id FROM outbox WHERE state='pending' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1), applied AS (INSERT INTO effect(id) SELECT id FROM picked RETURNING id) UPDATE outbox SET state='done' WHERE id IN (SELECT id FROM applied); SELECT pg_sleep(.01); COMMIT;",
+      "seconds": 0.025451000001339708
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "unknown\n",
+      "stderr": "",
+      "stdin": "SELECT state FROM outbox WHERE id='external-unknown'",
+      "seconds": 0.013147249999747146
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM session s JOIN media m ON m.owner_id=s.owner_id WHERE s.token='synthetic-owner' AND s.active AND s.can_read AND m.id=1",
+      "seconds": 0.011854542000946822
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM session s JOIN media m ON m.owner_id=s.owner_id WHERE s.token='synthetic-other' AND s.active AND s.can_read AND m.id=1",
+      "seconds": 0.011360708000211162
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM session s JOIN media m ON m.owner_id=s.owner_id WHERE s.token='synthetic-no-permission' AND s.active AND s.can_read AND m.id=1",
+      "seconds": 0.011284124999292544
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "UPDATE session SET can_read=false WHERE token='synthetic-owner'",
+      "seconds": 0.011697500000082073
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM session s JOIN media m ON m.owner_id=s.owner_id WHERE s.token='synthetic-owner' AND s.active AND s.can_read AND m.id=1",
+      "seconds": 0.011150209000334144
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "UPDATE session SET can_read=true WHERE token='synthetic-owner'",
+      "seconds": 0.011323125001581502
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM session s JOIN media m ON m.owner_id=s.owner_id WHERE s.token='synthetic-owner' AND s.active AND s.can_read AND m.id=1",
+      "seconds": 0.011188084001332754
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "UPDATE session SET active=false WHERE token='synthetic-owner'",
+      "seconds": 0.011439874999268795
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "stdin": "SELECT count(*) FROM session s JOIN media m ON m.owner_id=s.owner_id WHERE s.token='synthetic-owner' AND s.active AND s.can_read AND m.id=1",
+      "seconds": 0.011518416999024339
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "allocation\ncommission\ncompletion\neffect\nmedia\noutbox\npayment\nsession\nstock\nunit\n",
+      "stderr": "",
+      "stdin": "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename",
+      "seconds": 0.029988124999363208
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"span\": \"[0,60)\", \"unit\": \"artist\", \"booking\": \"a\"}, {\"id\": 3, \"span\": \"[60,90)\", \"unit\": \"artist\", \"booking\": \"adjacent\"}, {\"id\": 4, \"span\": \"[0,60)\", \"unit\": \"chair:1\", \"booking\": \"chair-booking-2\"}, {\"id\": 5, \"span\": \"[0,60)\", \"unit\": \"chair:2\", \"booking\": \"chair-booking-1\"}, {\"id\": 6, \"span\": \"[0,60)\", \"unit\": \"chair:3\", \"booking\": \"chair-booking-0\"}, {\"id\": 7, \"span\": \"[0,60)\", \"unit\": \"last-resource\", \"booking\": \"existing\"}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM allocation x) q",
+      "seconds": 0.020339083999715513
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"service-b\", \"amount\": 30}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM commission x) q",
+      "seconds": 0.015413916999023058
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"service-b\"}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM completion x) q",
+      "seconds": 0.013384416999542736
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"event-1\", \"executions\": 1}, {\"id\": \"event-10\", \"executions\": 1}, {\"id\": \"event-11\", \"executions\": 1}, {\"id\": \"event-12\", \"executions\": 1}, {\"id\": \"event-13\", \"executions\": 1}, {\"id\": \"event-14\", \"executions\": 1}, {\"id\": \"event-15\", \"executions\": 1}, {\"id\": \"event-16\", \"executions\": 1}, {\"id\": \"event-17\", \"executions\": 1}, {\"id\": \"event-18\", \"executions\": 1}, {\"id\": \"event-19\", \"executions\": 1}, {\"id\": \"event-2\", \"executions\": 1}, {\"id\": \"event-20\", \"executions\": 1}, {\"id\": \"event-21\", \"executions\": 1}, {\"id\": \"event-3\", \"executions\": 1}, {\"id\": \"event-4\", \"executions\": 1}, {\"id\": \"event-5\", \"executions\": 1}, {\"id\": \"event-6\", \"executions\": 1}, {\"id\": \"event-7\", \"executions\": 1}, {\"id\": \"event-8\", \"executions\": 1}, {\"id\": \"event-9\", \"executions\": 1}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM effect x) q",
+      "seconds": 0.012308082999879844
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"owner_id\": 1}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM media x) q",
+      "seconds": 0.011815666999609675
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"event-1\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-10\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-11\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-12\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-13\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-14\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-15\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-16\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-17\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-18\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-19\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-2\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-20\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-21\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-3\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-4\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-5\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-6\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-7\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-8\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-9\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"external-unknown\", \"state\": \"unknown\", \"created_at\": \"2026-11-02T20:06:39.409703+03:30\"}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM outbox x) q",
+      "seconds": 0.0120527500002936
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"amount\": 100, \"receipt\": 1, \"provider\": \"synthetic\", \"reference\": \"payment-1\"}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM payment x) q",
+      "seconds": 0.0115587919990503
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"token\": \"synthetic-no-permission\", \"active\": true, \"can_read\": false, \"owner_id\": 1}, {\"token\": \"synthetic-other\", \"active\": true, \"can_read\": true, \"owner_id\": 2}, {\"token\": \"synthetic-owner\", \"active\": false, \"can_read\": true, \"owner_id\": 1}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM session x) q",
+      "seconds": 0.011981416999333305
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"quantity\": 0}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM stock x) q",
+      "seconds": 0.012128250000387197
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1}, {\"id\": 2}, {\"id\": 3}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM unit x) q",
+      "seconds": 0.011665207999612903
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "allocation_id_seq:10\npayment_receipt_seq:13\n",
+      "stderr": "",
+      "stdin": "SELECT sequencename||':'||last_value FROM pg_sequences WHERE schemaname='public' ORDER BY sequencename",
+      "seconds": 0.01256854200073576
+    },
+    {
+      "argv": [
+        "pg_ctl",
+        "-D",
+        "/tmp/wf-local-dw67any0/data",
+        "-m",
+        "fast",
+        "-w",
+        "stop"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to shut down.... done\nserver stopped\n",
+      "stderr": "",
+      "stdin": null,
+      "seconds": 0.1091343340012827
+    },
+    {
+      "argv": [
+        "pg_ctl",
+        "-D",
+        "/tmp/wf-local-dw67any0/data",
+        "-l",
+        "/tmp/wf-local-dw67any0/postgres.log",
+        "-w",
+        "start"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to start.... done\nserver started\n",
+      "stderr": "",
+      "stdin": null,
+      "seconds": 0.125108458001705
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "allocation\ncommission\ncompletion\neffect\nmedia\noutbox\npayment\nsession\nstock\nunit\n",
+      "stderr": "",
+      "stdin": "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename",
+      "seconds": 0.022269540999332094
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"span\": \"[0,60)\", \"unit\": \"artist\", \"booking\": \"a\"}, {\"id\": 3, \"span\": \"[60,90)\", \"unit\": \"artist\", \"booking\": \"adjacent\"}, {\"id\": 4, \"span\": \"[0,60)\", \"unit\": \"chair:1\", \"booking\": \"chair-booking-2\"}, {\"id\": 5, \"span\": \"[0,60)\", \"unit\": \"chair:2\", \"booking\": \"chair-booking-1\"}, {\"id\": 6, \"span\": \"[0,60)\", \"unit\": \"chair:3\", \"booking\": \"chair-booking-0\"}, {\"id\": 7, \"span\": \"[0,60)\", \"unit\": \"last-resource\", \"booking\": \"existing\"}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM allocation x) q",
+      "seconds": 0.014860208000754938
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"service-b\", \"amount\": 30}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM commission x) q",
+      "seconds": 0.013026958999034832
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"service-b\"}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM completion x) q",
+      "seconds": 0.01189962500029651
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"event-1\", \"executions\": 1}, {\"id\": \"event-10\", \"executions\": 1}, {\"id\": \"event-11\", \"executions\": 1}, {\"id\": \"event-12\", \"executions\": 1}, {\"id\": \"event-13\", \"executions\": 1}, {\"id\": \"event-14\", \"executions\": 1}, {\"id\": \"event-15\", \"executions\": 1}, {\"id\": \"event-16\", \"executions\": 1}, {\"id\": \"event-17\", \"executions\": 1}, {\"id\": \"event-18\", \"executions\": 1}, {\"id\": \"event-19\", \"executions\": 1}, {\"id\": \"event-2\", \"executions\": 1}, {\"id\": \"event-20\", \"executions\": 1}, {\"id\": \"event-21\", \"executions\": 1}, {\"id\": \"event-3\", \"executions\": 1}, {\"id\": \"event-4\", \"executions\": 1}, {\"id\": \"event-5\", \"executions\": 1}, {\"id\": \"event-6\", \"executions\": 1}, {\"id\": \"event-7\", \"executions\": 1}, {\"id\": \"event-8\", \"executions\": 1}, {\"id\": \"event-9\", \"executions\": 1}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM effect x) q",
+      "seconds": 0.011770749999413965
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"owner_id\": 1}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM media x) q",
+      "seconds": 0.011406666000766563
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"event-1\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-10\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-11\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-12\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-13\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-14\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-15\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-16\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-17\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-18\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-19\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-2\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-20\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-21\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-3\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-4\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-5\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-6\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-7\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-8\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-9\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"external-unknown\", \"state\": \"unknown\", \"created_at\": \"2026-11-02T20:06:39.409703+03:30\"}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM outbox x) q",
+      "seconds": 0.011478749998786952
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"amount\": 100, \"receipt\": 1, \"provider\": \"synthetic\", \"reference\": \"payment-1\"}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM payment x) q",
+      "seconds": 0.011662875000183703
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"token\": \"synthetic-no-permission\", \"active\": true, \"can_read\": false, \"owner_id\": 1}, {\"token\": \"synthetic-other\", \"active\": true, \"can_read\": true, \"owner_id\": 2}, {\"token\": \"synthetic-owner\", \"active\": false, \"can_read\": true, \"owner_id\": 1}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM session x) q",
+      "seconds": 0.011854374999529682
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"quantity\": 0}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM stock x) q",
+      "seconds": 0.011505333999593859
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1}, {\"id\": 2}, {\"id\": 3}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM unit x) q",
+      "seconds": 0.011555207998753758
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "allocation_id_seq:10\npayment_receipt_seq:13\n",
+      "stderr": "",
+      "stdin": "SELECT sequencename||':'||last_value FROM pg_sequences WHERE schemaname='public' ORDER BY sequencename",
+      "seconds": 0.012775166000210447
+    },
+    {
+      "argv": [
+        "pg_dump",
+        "-Fc",
+        "-f",
+        "/tmp/wf-local-dw67any0/synthetic.dump",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": null,
+      "seconds": 0.060504040999148856
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "postgres"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "DROP DATABASE wf_synthetic",
+      "seconds": 0.02805616700061364
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "postgres"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": "CREATE DATABASE wf_restored",
+      "seconds": 0.05803783299961651
+    },
+    {
+      "argv": [
+        "pg_restore",
+        "--exit-on-error",
+        "-d",
+        "wf_restored",
+        "/tmp/wf-local-dw67any0/synthetic.dump"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdin": null,
+      "seconds": 0.04584124999928463
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "allocation\ncommission\ncompletion\neffect\nmedia\noutbox\npayment\nsession\nstock\nunit\n",
+      "stderr": "",
+      "stdin": "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename",
+      "seconds": 0.012941916998897796
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"span\": \"[0,60)\", \"unit\": \"artist\", \"booking\": \"a\"}, {\"id\": 3, \"span\": \"[60,90)\", \"unit\": \"artist\", \"booking\": \"adjacent\"}, {\"id\": 4, \"span\": \"[0,60)\", \"unit\": \"chair:1\", \"booking\": \"chair-booking-2\"}, {\"id\": 5, \"span\": \"[0,60)\", \"unit\": \"chair:2\", \"booking\": \"chair-booking-1\"}, {\"id\": 6, \"span\": \"[0,60)\", \"unit\": \"chair:3\", \"booking\": \"chair-booking-0\"}, {\"id\": 7, \"span\": \"[0,60)\", \"unit\": \"last-resource\", \"booking\": \"existing\"}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM allocation x) q",
+      "seconds": 0.011937833000047249
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"service-b\", \"amount\": 30}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM commission x) q",
+      "seconds": 0.011613124999712454
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"service-b\"}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM completion x) q",
+      "seconds": 0.011453499999333872
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"event-1\", \"executions\": 1}, {\"id\": \"event-10\", \"executions\": 1}, {\"id\": \"event-11\", \"executions\": 1}, {\"id\": \"event-12\", \"executions\": 1}, {\"id\": \"event-13\", \"executions\": 1}, {\"id\": \"event-14\", \"executions\": 1}, {\"id\": \"event-15\", \"executions\": 1}, {\"id\": \"event-16\", \"executions\": 1}, {\"id\": \"event-17\", \"executions\": 1}, {\"id\": \"event-18\", \"executions\": 1}, {\"id\": \"event-19\", \"executions\": 1}, {\"id\": \"event-2\", \"executions\": 1}, {\"id\": \"event-20\", \"executions\": 1}, {\"id\": \"event-21\", \"executions\": 1}, {\"id\": \"event-3\", \"executions\": 1}, {\"id\": \"event-4\", \"executions\": 1}, {\"id\": \"event-5\", \"executions\": 1}, {\"id\": \"event-6\", \"executions\": 1}, {\"id\": \"event-7\", \"executions\": 1}, {\"id\": \"event-8\", \"executions\": 1}, {\"id\": \"event-9\", \"executions\": 1}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM effect x) q",
+      "seconds": 0.011663375000352971
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"owner_id\": 1}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM media x) q",
+      "seconds": 0.011655666001388454
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"event-1\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-10\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-11\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-12\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-13\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-14\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-15\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-16\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-17\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-18\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-19\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-2\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-20\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-21\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-3\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-4\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-5\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-6\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-7\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-8\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"event-9\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:06:39.047883+03:30\"}, {\"id\": \"external-unknown\", \"state\": \"unknown\", \"created_at\": \"2026-11-02T20:06:39.409703+03:30\"}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM outbox x) q",
+      "seconds": 0.011543624999831081
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"amount\": 100, \"receipt\": 1, \"provider\": \"synthetic\", \"reference\": \"payment-1\"}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM payment x) q",
+      "seconds": 0.0114586670006247
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"token\": \"synthetic-no-permission\", \"active\": true, \"can_read\": false, \"owner_id\": 1}, {\"token\": \"synthetic-other\", \"active\": true, \"can_read\": true, \"owner_id\": 2}, {\"token\": \"synthetic-owner\", \"active\": false, \"can_read\": true, \"owner_id\": 1}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM session x) q",
+      "seconds": 0.011656042001050082
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"quantity\": 0}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM stock x) q",
+      "seconds": 0.011696292000124231
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1}, {\"id\": 2}, {\"id\": 3}]\n",
+      "stderr": "",
+      "stdin": "SELECT coalesce(jsonb_agg(r ORDER BY r::text),'[]'::jsonb)::text FROM (SELECT to_jsonb(x) AS r FROM unit x) q",
+      "seconds": 0.011430791999373469
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "allocation_id_seq:10\npayment_receipt_seq:13\n",
+      "stderr": "",
+      "stdin": "SELECT sequencename||':'||last_value FROM pg_sequences WHERE schemaname='public' ORDER BY sequencename",
+      "seconds": 0.012384208999719704
+    },
+    {
+      "argv": [
+        "pg_restore",
+        "--list",
+        "/tmp/wf-local-dw67any0/corrupt.dump"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "pg_restore: error: input file does not appear to be a valid archive (too short?)\n",
+      "stdin": null,
+      "seconds": 0.009282625000196276
+    },
+    {
+      "argv": [
+        "pg_ctl",
+        "-D",
+        "/tmp/wf-local-dw67any0/data",
+        "-m",
+        "fast",
+        "-w",
+        "stop"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to shut down.... done\nserver stopped\n",
+      "stderr": "",
+      "stdin": null,
+      "seconds": 0.10882270799993421
+    }
+  ],
+  "tests": [
+    {
+      "name": "capacity_one_and_adjacent_ranges",
+      "status": "تأییدشده با آزمون",
+      "seconds": 2.067658667001524,
+      "evidence": {
+        "accepted_contenders": 1,
+        "rejected_overlap": 1,
+        "adjacent_accepted": 1
+      }
+    },
+    {
+      "name": "capacity_three",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.3768389159995422,
+      "evidence": {
+        "connections": 4,
+        "accepted": 3,
+        "capacity_rejections": 1,
+        "pattern": "serialized explicit unit allocation"
+      }
+    },
+    {
+      "name": "multi_resource_rollback",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.05158020900125848,
+      "evidence": {
+        "partial_allocations_and_events": 0
+      }
+    },
+    {
+      "name": "payment_idempotency",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.09249329200065404,
+      "evidence": {
+        "notifications": 10,
+        "notification_ids": 2,
+        "financial_effects": 1,
+        "stable_receipt": [
+          "1"
+        ],
+        "mismatched_amount_rejected": true
+      }
+    },
+    {
+      "name": "completion_stock_commission_atomicity",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.09316895899974043,
+      "evidence": {
+        "failed_completion_residue": 0,
+        "successful_completions": 1,
+        "remaining_stock": 0,
+        "commissions": 1
+      }
+    },
+    {
+      "name": "outbox_worker_crash_restart",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.41350195899940445,
+      "evidence": {
+        "workers": 2,
+        "events": 21,
+        "effects": 21,
+        "drain_seconds": 0.34281129199916904,
+        "unknown_external_auto_retries": 0,
+        "limitation": "local DB effects only; no actual external send"
+      }
+    },
+    {
+      "name": "private_file_session_permission_fixture",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.618939040999976,
+      "evidence": {
+        "before_revocation": 200,
+        "denied_statuses": [
+          403,
+          403,
+          403,
+          403
+        ],
+        "permission_revoked": 403,
+        "old_session_after_revocation": 403,
+        "cache_control": "no-store",
+        "fixture_only": true
+      }
+    },
+    {
+      "name": "database_restart_dump_restore",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.9105697919985687,
+      "evidence": {
+        "dump_seconds": 0.06053862500084506,
+        "restore_seconds": 0.045854207999582286,
+        "archive_sha256": "91bb213d93b0122061e5c868197e2b87ef4e60d88b865efce6a7ce6e5ce2f3bd",
+        "source": {
+          "sha256": "35f664789a8cd629e2ada450201762011c1de954a6f54889db0e7059b4d82073",
+          "table_rows": {
+            "allocation": 6,
+            "commission": 1,
+            "completion": 1,
+            "effect": 21,
+            "media": 1,
+            "outbox": 22,
+            "payment": 1,
+            "session": 3,
+            "stock": 1,
+            "unit": 3
+          },
+          "sequences": "allocation_id_seq:10\npayment_receipt_seq:13"
+        },
+        "restored": {
+          "sha256": "35f664789a8cd629e2ada450201762011c1de954a6f54889db0e7059b4d82073",
+          "table_rows": {
+            "allocation": 6,
+            "commission": 1,
+            "completion": 1,
+            "effect": 21,
+            "media": 1,
+            "outbox": 22,
+            "payment": 1,
+            "session": 3,
+            "stock": 1,
+            "unit": 3
+          },
+          "sequences": "allocation_id_seq:10\npayment_receipt_seq:13"
+        },
+        "corrupt_archive_rejected": true,
+        "RTO_RPO_proven": false,
+        "limitation": "same cluster logical restore; no PITR, host loss, media or production load"
+      }
+    }
+  ],
+  "python_version": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "settings": "{\"version\" : \"PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit\", \"isolation\" : \"read committed\", \"fsync\" : \"on\", \"full_page_writes\" : \"on\", \"synchronous_commit\" : \"on\", \"listen_addresses\" : \"\"}",
+  "postgres_log": "2026-11-02 20:06:36.148 +0330 [80512] LOG:  starting PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit\n2026-11-02 20:06:36.148 +0330 [80512] LOG:  listening on Unix socket \"/tmp/wf-local-dw67any0/socket/.s.PGSQL.55439\"\n2026-11-02 20:06:36.151 +0330 [80513] LOG:  database system was shut down at 2026-11-02 20:06:36 +0330\n2026-11-02 20:06:36.154 +0330 [80512] LOG:  database system is ready to accept connections\n2026-11-02 20:06:38.369 +0330 [80531] ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\n2026-11-02 20:06:38.369 +0330 [80531] DETAIL:  Key (unit, span)=(artist, [30,90)) conflicts with existing key (unit, span)=(artist, [0,60)).\n2026-11-02 20:06:38.369 +0330 [80531] STATEMENT:  INSERT INTO allocation(booking,unit,span) VALUES('b','artist','[30,90)')\n2026-11-02 20:06:38.767 +0330 [80564] ERROR:  capacity exhausted\n2026-11-02 20:06:38.767 +0330 [80564] CONTEXT:  PL/pgSQL function inline_code_block line 4 at RAISE\n2026-11-02 20:06:38.767 +0330 [80564] STATEMENT:  DO $$ DECLARE u int; BEGIN\n\t        PERFORM pg_advisory_xact_lock(440018);\n\t        SELECT candidate.id INTO u FROM unit candidate WHERE NOT EXISTS(SELECT 1 FROM allocation a WHERE a.unit='chair:'||candidate.id AND a.span && '[0,60)'::int4range) ORDER BY candidate.id LIMIT 1;\n\t        IF u IS NULL THEN RAISE EXCEPTION 'capacity exhausted'; END IF;\n\t        INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-3','chair:'||u,'[0,60)');\n\t        PERFORM pg_sleep(.1); END $$;\n2026-11-02 20:06:38.836 +0330 [80570] ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\n2026-11-02 20:06:38.836 +0330 [80570] DETAIL:  Key (unit, span)=(last-resource, [30,60)) conflicts with existing key (unit, span)=(last-resource, [0,60)).\n2026-11-02 20:06:38.836 +0330 [80570] STATEMENT:  INSERT INTO allocation(booking,unit,span) VALUES('partial','last-resource','[30,60)');\n2026-11-02 20:06:38.920 +0330 [80598] ERROR:  payment amount mismatch\n2026-11-02 20:06:38.920 +0330 [80598] CONTEXT:  PL/pgSQL function receive_payment(text,text,integer) line 6 at RAISE\n2026-11-02 20:06:38.920 +0330 [80598] STATEMENT:  SELECT receive_payment('synthetic','payment-1',101)\n2026-11-02 20:06:38.954 +0330 [80604] ERROR:  injected before commission\n2026-11-02 20:06:38.954 +0330 [80604] CONTEXT:  PL/pgSQL function complete_service(text,boolean) line 7 at RAISE\n2026-11-02 20:06:38.954 +0330 [80604] STATEMENT:  SELECT complete_service('failure',true)\n2026-11-02 20:06:38.990 +0330 [80611] ERROR:  insufficient stock\n2026-11-02 20:06:38.990 +0330 [80611] CONTEXT:  PL/pgSQL function complete_service(text,boolean) line 6 at RAISE\n2026-11-02 20:06:38.990 +0330 [80611] STATEMENT:  SELECT complete_service('service-a',false)\n2026-11-02 20:06:39.083 +0330 [80627] FATAL:  terminating connection due to administrator command\n2026-11-02 20:06:39.083 +0330 [80627] STATEMENT:  SELECT pg_sleep(12);\n2026-11-02 20:06:40.248 +0330 [80512] LOG:  received fast shutdown request\n2026-11-02 20:06:40.248 +0330 [80512] LOG:  aborting any active transactions\n2026-11-02 20:06:40.249 +0330 [80512] LOG:  background worker \"logical replication launcher\" (PID 80519) exited with exit code 1\n2026-11-02 20:06:40.249 +0330 [80514] LOG:  shutting down\n2026-11-02 20:06:40.258 +0330 [80512] LOG:  database system is shut down\n2026-11-02 20:06:40.392 +0330 [80707] LOG:  starting PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit\n2026-11-02 20:06:40.392 +0330 [80707] LOG:  listening on Unix socket \"/tmp/wf-local-dw67any0/socket/.s.PGSQL.55439\"\n2026-11-02 20:06:40.395 +0330 [80708] LOG:  database system was shut down at 2026-11-02 20:06:40 +0330\n2026-11-02 20:06:40.398 +0330 [80707] LOG:  database system is ready to accept connections\n2026-11-02 20:06:40.982 +0330 [80707] LOG:  received fast shutdown request\n2026-11-02 20:06:40.982 +0330 [80707] LOG:  aborting any active transactions\n2026-11-02 20:06:40.983 +0330 [80707] LOG:  background worker \"logical replication launcher\" (PID 80714) exited with exit code 1\n2026-11-02 20:06:40.983 +0330 [80709] LOG:  shutting down\n2026-11-02 20:06:40.991 +0330 [80707] LOG:  database system is shut down\n",
+  "elapsed_seconds": 5.585337791999336,
+  "finished_utc": "2026-11-02T16:36:41.169990+00:00",
+  "source_sha256": {
+    "run.py": "944d0aa84b32234dbd72a973a71487237f65b7e278a3d42e555aff52840e4d26",
+    "schema.sql": "1734704ea96d1065f27fe6f0b46f1c9cbd63cedd84b6845ef732cb05457d60e3",
+    "PLAN.md": "64dcde27642b4063b3bc73523b21345aa81036c6678fe821071f3d4831bdea24"
+  }
+}

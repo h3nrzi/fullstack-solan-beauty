@@ -1,0 +1,1715 @@
+{
+  "started_utc": "2026-11-02T16:35:55.890891+00:00",
+  "synthetic_only": true,
+  "cash_purchase_toman": 0,
+  "commands": [
+    {
+      "argv": [
+        "psql",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "psql (PostgreSQL) 14.23 (Homebrew)\n",
+      "stderr": "",
+      "seconds": 0.011127084000690957
+    },
+    {
+      "argv": [
+        "initdb",
+        "-D",
+        "/tmp/wf-local-7lwqnz81/data",
+        "-U",
+        "wf_validator",
+        "--auth-local=trust",
+        "--auth-host=reject",
+        "--no-locale"
+      ],
+      "returncode": 0,
+      "stdout": "The files belonging to this database system will be owned by user \"hossein\".\nThis user must also own the server process.\n\nThe database cluster will be initialized with locale \"C\".\nThe default database encoding has accordingly been set to \"SQL_ASCII\".\nThe default text search configuration will be set to \"english\".\n\nData page checksums are disabled.\n\ncreating directory /tmp/wf-local-7lwqnz81/data ... ok\ncreating subdirectories ... ok\nselecting dynamic shared memory implementation ... posix\nselecting default max_connections ... 100\nselecting default shared_buffers ... 128MB\nselecting default time zone ... Asia/Tehran\ncreating configuration files ... ok\nrunning bootstrap script ... ok\nperforming post-bootstrap initialization ... ok\nsyncing data to disk ... ok\n\nSuccess. You can now start the database server using:\n\n    pg_ctl -D /tmp/wf-local-7lwqnz81/data -l logfile start\n\n",
+      "stderr": "",
+      "seconds": 0.5954283749997558
+    },
+    {
+      "argv": [
+        "pg_ctl",
+        "-D",
+        "/tmp/wf-local-7lwqnz81/data",
+        "-l",
+        "/tmp/wf-local-7lwqnz81/postgres.log",
+        "-w",
+        "start"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to start.... done\nserver started\n",
+      "stderr": "",
+      "seconds": 0.12414129200078605
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "postgres"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.0723651250009425
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "{\"version\" : \"PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit\", \"isolation\" : \"read committed\", \"fsync\" : \"on\", \"full_page_writes\" : \"on\", \"synchronous_commit\" : \"on\", \"listen_addresses\" : \"\"}\n",
+      "stderr": "",
+      "seconds": 0.01477958400028001
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.05198712500168767
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.012548832999527804
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\nDETAIL:  Key (unit, span)=(artist, [30,90)) conflicts with existing key (unit, span)=(artist, [0,60)).\n",
+      "seconds": 2.002199540998845
+    },
+    {
+      "argv": [
+        "psql",
+        "async"
+      ],
+      "returncode": 0,
+      "stdout": "\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.03041737499916053
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "2\n",
+      "stderr": "",
+      "seconds": 0.02148716600095213
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.12080695800068497
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.2268918339996162
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.33416925000165065
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  capacity exhausted\nCONTEXT:  PL/pgSQL function inline_code_block line 4 at RAISE\n",
+      "seconds": 0.33846791699943424
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "3\n",
+      "stderr": "",
+      "seconds": 0.028731207999953767
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.020524290999674122
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\nDETAIL:  Key (unit, span)=(last-resource, [30,60)) conflicts with existing key (unit, span)=(last-resource, [0,60)).\n",
+      "seconds": 0.016422042001067894
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "seconds": 0.013384750000113854
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.022557832999154925
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.021842457999809994
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.02092195899967919
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.02151554100055364
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.02433670800019172
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.022679917001369176
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.027762749999965308
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.027428792000137037
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.01923666600123397
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.02547579200108885
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.012229040999955032
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.011934749998545158
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  payment amount mismatch\nCONTEXT:  PL/pgSQL function receive_payment(text,text,integer) line 6 at RAISE\n",
+      "seconds": 0.01179920799950196
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.011095833999206661
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.011003333000189741
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  injected before commission\nCONTEXT:  PL/pgSQL function complete_service(text,boolean) line 7 at RAISE\n",
+      "seconds": 0.011755875000744709
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.010677083999325987
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "seconds": 0.010914083000898245
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "\n",
+      "stderr": "",
+      "seconds": 0.013135665998561308
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  insufficient stock\nCONTEXT:  PL/pgSQL function complete_service(text,boolean) line 6 at RAISE\n",
+      "seconds": 0.013332915999853867
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "service-b\n",
+      "stderr": "",
+      "seconds": 0.01887762499973178
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "\n",
+      "stderr": "",
+      "seconds": 0.012175542000477435
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "seconds": 0.011413666999942507
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.011171375001140404
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.012343874999714899
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "21\n",
+      "stderr": "",
+      "seconds": 0.01114899999993213
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.010930041999017703
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "t\n",
+      "stderr": "",
+      "seconds": 0.011921958999664639
+    },
+    {
+      "argv": [
+        "psql",
+        "async"
+      ],
+      "returncode": 2,
+      "stdout": "event-1\n",
+      "stderr": "FATAL:  terminating connection due to administrator command\nserver closed the connection unexpectedly\n\tThis probably means the server terminated abnormally\n\tbefore or while processing the request.\nconnection to server was lost\n"
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "seconds": 0.01120450000053097
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "pending\n",
+      "stderr": "",
+      "seconds": 0.010965874998873915
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "stderr": "",
+      "seconds": 0.25236354200023925
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "stderr": "",
+      "seconds": 0.25192675000107556
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "21\n",
+      "stderr": "",
+      "seconds": 0.027417082999818376
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "21\n",
+      "stderr": "",
+      "seconds": 0.019831290999718476
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.016659333999996306
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "\n",
+      "stderr": "",
+      "seconds": 0.024186790999010555
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "unknown\n",
+      "stderr": "",
+      "seconds": 0.013012625000556
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.011936165999941295
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "seconds": 0.01163174999965122
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "seconds": 0.011870874999658554
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.0117757910011278
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "",
+      "seconds": 0.01105825000013283
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "allocation\ncommission\ncompletion\neffect\nmedia\noutbox\npayment\nsession\nstock\nunit\n",
+      "stderr": "",
+      "seconds": 0.031232625000484404
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"span\": \"[0,60)\", \"unit\": \"artist\", \"booking\": \"a\"}, {\"id\": 3, \"span\": \"[60,90)\", \"unit\": \"artist\", \"booking\": \"adjacent\"}, {\"id\": 4, \"span\": \"[0,60)\", \"unit\": \"chair:1\", \"booking\": \"chair-booking-2\"}, {\"id\": 5, \"span\": \"[0,60)\", \"unit\": \"chair:2\", \"booking\": \"chair-booking-3\"}, {\"id\": 6, \"span\": \"[0,60)\", \"unit\": \"chair:3\", \"booking\": \"chair-booking-0\"}, {\"id\": 7, \"span\": \"[0,60)\", \"unit\": \"last-resource\", \"booking\": \"existing\"}]\n",
+      "stderr": "",
+      "seconds": 0.020689124999989872
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"service-b\", \"amount\": 30}]\n",
+      "stderr": "",
+      "seconds": 0.016094040998723358
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"service-b\"}]\n",
+      "stderr": "",
+      "seconds": 0.013727083000048879
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"event-1\", \"executions\": 1}, {\"id\": \"event-10\", \"executions\": 1}, {\"id\": \"event-11\", \"executions\": 1}, {\"id\": \"event-12\", \"executions\": 1}, {\"id\": \"event-13\", \"executions\": 1}, {\"id\": \"event-14\", \"executions\": 1}, {\"id\": \"event-15\", \"executions\": 1}, {\"id\": \"event-16\", \"executions\": 1}, {\"id\": \"event-17\", \"executions\": 1}, {\"id\": \"event-18\", \"executions\": 1}, {\"id\": \"event-19\", \"executions\": 1}, {\"id\": \"event-2\", \"executions\": 1}, {\"id\": \"event-20\", \"executions\": 1}, {\"id\": \"event-21\", \"executions\": 1}, {\"id\": \"event-3\", \"executions\": 1}, {\"id\": \"event-4\", \"executions\": 1}, {\"id\": \"event-5\", \"executions\": 1}, {\"id\": \"event-6\", \"executions\": 1}, {\"id\": \"event-7\", \"executions\": 1}, {\"id\": \"event-8\", \"executions\": 1}, {\"id\": \"event-9\", \"executions\": 1}]\n",
+      "stderr": "",
+      "seconds": 0.012540416999399895
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"owner_id\": 1}]\n",
+      "stderr": "",
+      "seconds": 0.016217333999520633
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"event-1\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-10\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-11\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-12\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-13\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-14\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-15\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-16\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-17\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-18\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-19\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-2\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-20\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-21\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-3\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-4\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-5\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-6\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-7\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-8\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-9\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"external-unknown\", \"state\": \"unknown\", \"created_at\": \"2026-11-02T20:05:59.837378+03:30\"}]\n",
+      "stderr": "",
+      "seconds": 0.01229412499924365
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"amount\": 100, \"receipt\": 1, \"provider\": \"synthetic\", \"reference\": \"payment-1\"}]\n",
+      "stderr": "",
+      "seconds": 0.013903332999689155
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"token\": \"synthetic-no-permission\", \"active\": true, \"can_read\": false, \"owner_id\": 1}, {\"token\": \"synthetic-other\", \"active\": true, \"can_read\": true, \"owner_id\": 2}, {\"token\": \"synthetic-owner\", \"active\": false, \"can_read\": true, \"owner_id\": 1}]\n",
+      "stderr": "",
+      "seconds": 0.011808375000327942
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"quantity\": 0}]\n",
+      "stderr": "",
+      "seconds": 0.011663667000902933
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1}, {\"id\": 2}, {\"id\": 3}]\n",
+      "stderr": "",
+      "seconds": 0.01143983399924764
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "allocation_id_seq:10\npayment_receipt_seq:13\n",
+      "stderr": "",
+      "seconds": 0.012698500000624335
+    },
+    {
+      "argv": [
+        "pg_ctl",
+        "-D",
+        "/tmp/wf-local-7lwqnz81/data",
+        "-m",
+        "fast",
+        "-w",
+        "stop"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to shut down.... done\nserver stopped\n",
+      "stderr": "",
+      "seconds": 0.10886766600015108
+    },
+    {
+      "argv": [
+        "pg_ctl",
+        "-D",
+        "/tmp/wf-local-7lwqnz81/data",
+        "-l",
+        "/tmp/wf-local-7lwqnz81/postgres.log",
+        "-w",
+        "start"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to start.... done\nserver started\n",
+      "stderr": "",
+      "seconds": 0.12875766700017266
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "allocation\ncommission\ncompletion\neffect\nmedia\noutbox\npayment\nsession\nstock\nunit\n",
+      "stderr": "",
+      "seconds": 0.018516291998821544
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"span\": \"[0,60)\", \"unit\": \"artist\", \"booking\": \"a\"}, {\"id\": 3, \"span\": \"[60,90)\", \"unit\": \"artist\", \"booking\": \"adjacent\"}, {\"id\": 4, \"span\": \"[0,60)\", \"unit\": \"chair:1\", \"booking\": \"chair-booking-2\"}, {\"id\": 5, \"span\": \"[0,60)\", \"unit\": \"chair:2\", \"booking\": \"chair-booking-3\"}, {\"id\": 6, \"span\": \"[0,60)\", \"unit\": \"chair:3\", \"booking\": \"chair-booking-0\"}, {\"id\": 7, \"span\": \"[0,60)\", \"unit\": \"last-resource\", \"booking\": \"existing\"}]\n",
+      "stderr": "",
+      "seconds": 0.013700749999770778
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"service-b\", \"amount\": 30}]\n",
+      "stderr": "",
+      "seconds": 0.012092000000848202
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"service-b\"}]\n",
+      "stderr": "",
+      "seconds": 0.012107874999855994
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"event-1\", \"executions\": 1}, {\"id\": \"event-10\", \"executions\": 1}, {\"id\": \"event-11\", \"executions\": 1}, {\"id\": \"event-12\", \"executions\": 1}, {\"id\": \"event-13\", \"executions\": 1}, {\"id\": \"event-14\", \"executions\": 1}, {\"id\": \"event-15\", \"executions\": 1}, {\"id\": \"event-16\", \"executions\": 1}, {\"id\": \"event-17\", \"executions\": 1}, {\"id\": \"event-18\", \"executions\": 1}, {\"id\": \"event-19\", \"executions\": 1}, {\"id\": \"event-2\", \"executions\": 1}, {\"id\": \"event-20\", \"executions\": 1}, {\"id\": \"event-21\", \"executions\": 1}, {\"id\": \"event-3\", \"executions\": 1}, {\"id\": \"event-4\", \"executions\": 1}, {\"id\": \"event-5\", \"executions\": 1}, {\"id\": \"event-6\", \"executions\": 1}, {\"id\": \"event-7\", \"executions\": 1}, {\"id\": \"event-8\", \"executions\": 1}, {\"id\": \"event-9\", \"executions\": 1}]\n",
+      "stderr": "",
+      "seconds": 0.011637458999757655
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"owner_id\": 1}]\n",
+      "stderr": "",
+      "seconds": 0.011953500001254724
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"event-1\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-10\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-11\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-12\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-13\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-14\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-15\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-16\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-17\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-18\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-19\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-2\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-20\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-21\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-3\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-4\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-5\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-6\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-7\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-8\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-9\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"external-unknown\", \"state\": \"unknown\", \"created_at\": \"2026-11-02T20:05:59.837378+03:30\"}]\n",
+      "stderr": "",
+      "seconds": 0.01234979199944064
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"amount\": 100, \"receipt\": 1, \"provider\": \"synthetic\", \"reference\": \"payment-1\"}]\n",
+      "stderr": "",
+      "seconds": 0.011964291999902343
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"token\": \"synthetic-no-permission\", \"active\": true, \"can_read\": false, \"owner_id\": 1}, {\"token\": \"synthetic-other\", \"active\": true, \"can_read\": true, \"owner_id\": 2}, {\"token\": \"synthetic-owner\", \"active\": false, \"can_read\": true, \"owner_id\": 1}]\n",
+      "stderr": "",
+      "seconds": 0.011528709001140669
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"quantity\": 0}]\n",
+      "stderr": "",
+      "seconds": 0.011769042001105845
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1}, {\"id\": 2}, {\"id\": 3}]\n",
+      "stderr": "",
+      "seconds": 0.011844790999020915
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "allocation_id_seq:10\npayment_receipt_seq:13\n",
+      "stderr": "",
+      "seconds": 0.012611041000127443
+    },
+    {
+      "argv": [
+        "pg_dump",
+        "-Fc",
+        "-f",
+        "/tmp/wf-local-7lwqnz81/synthetic.dump",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.06365820800056099
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "postgres"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.032091582999782986
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "postgres"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.05045845900167478
+    },
+    {
+      "argv": [
+        "pg_restore",
+        "--exit-on-error",
+        "-d",
+        "wf_restored",
+        "/tmp/wf-local-7lwqnz81/synthetic.dump"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.48609654100073385
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "allocation\ncommission\ncompletion\neffect\nmedia\noutbox\npayment\nsession\nstock\nunit\n",
+      "stderr": "",
+      "seconds": 0.013648042000568239
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"span\": \"[0,60)\", \"unit\": \"artist\", \"booking\": \"a\"}, {\"id\": 3, \"span\": \"[60,90)\", \"unit\": \"artist\", \"booking\": \"adjacent\"}, {\"id\": 4, \"span\": \"[0,60)\", \"unit\": \"chair:1\", \"booking\": \"chair-booking-2\"}, {\"id\": 5, \"span\": \"[0,60)\", \"unit\": \"chair:2\", \"booking\": \"chair-booking-3\"}, {\"id\": 6, \"span\": \"[0,60)\", \"unit\": \"chair:3\", \"booking\": \"chair-booking-0\"}, {\"id\": 7, \"span\": \"[0,60)\", \"unit\": \"last-resource\", \"booking\": \"existing\"}]\n",
+      "stderr": "",
+      "seconds": 0.013631124998937594
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"service-b\", \"amount\": 30}]\n",
+      "stderr": "",
+      "seconds": 0.011761375000787666
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"service-b\"}]\n",
+      "stderr": "",
+      "seconds": 0.011339167000187445
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"event-1\", \"executions\": 1}, {\"id\": \"event-10\", \"executions\": 1}, {\"id\": \"event-11\", \"executions\": 1}, {\"id\": \"event-12\", \"executions\": 1}, {\"id\": \"event-13\", \"executions\": 1}, {\"id\": \"event-14\", \"executions\": 1}, {\"id\": \"event-15\", \"executions\": 1}, {\"id\": \"event-16\", \"executions\": 1}, {\"id\": \"event-17\", \"executions\": 1}, {\"id\": \"event-18\", \"executions\": 1}, {\"id\": \"event-19\", \"executions\": 1}, {\"id\": \"event-2\", \"executions\": 1}, {\"id\": \"event-20\", \"executions\": 1}, {\"id\": \"event-21\", \"executions\": 1}, {\"id\": \"event-3\", \"executions\": 1}, {\"id\": \"event-4\", \"executions\": 1}, {\"id\": \"event-5\", \"executions\": 1}, {\"id\": \"event-6\", \"executions\": 1}, {\"id\": \"event-7\", \"executions\": 1}, {\"id\": \"event-8\", \"executions\": 1}, {\"id\": \"event-9\", \"executions\": 1}]\n",
+      "stderr": "",
+      "seconds": 0.011357084000337636
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"owner_id\": 1}]\n",
+      "stderr": "",
+      "seconds": 0.011493625001094188
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": \"event-1\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-10\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-11\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-12\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-13\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-14\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-15\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-16\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-17\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-18\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-19\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-2\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-20\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-21\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-3\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-4\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-5\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-6\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-7\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-8\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"event-9\", \"state\": \"done\", \"created_at\": \"2026-11-02T20:05:59.461124+03:30\"}, {\"id\": \"external-unknown\", \"state\": \"unknown\", \"created_at\": \"2026-11-02T20:05:59.837378+03:30\"}]\n",
+      "stderr": "",
+      "seconds": 0.011498542000481393
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"amount\": 100, \"receipt\": 1, \"provider\": \"synthetic\", \"reference\": \"payment-1\"}]\n",
+      "stderr": "",
+      "seconds": 0.011302249999062042
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"token\": \"synthetic-no-permission\", \"active\": true, \"can_read\": false, \"owner_id\": 1}, {\"token\": \"synthetic-other\", \"active\": true, \"can_read\": true, \"owner_id\": 2}, {\"token\": \"synthetic-owner\", \"active\": false, \"can_read\": true, \"owner_id\": 1}]\n",
+      "stderr": "",
+      "seconds": 0.01145258299948182
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1, \"quantity\": 0}]\n",
+      "stderr": "",
+      "seconds": 0.011249125000176718
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "[{\"id\": 1}, {\"id\": 2}, {\"id\": 3}]\n",
+      "stderr": "",
+      "seconds": 0.01125254200087511
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_restored"
+      ],
+      "returncode": 0,
+      "stdout": "allocation_id_seq:10\npayment_receipt_seq:13\n",
+      "stderr": "",
+      "seconds": 0.012140834000092582
+    },
+    {
+      "argv": [
+        "pg_restore",
+        "--list",
+        "/tmp/wf-local-7lwqnz81/corrupt.dump"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "pg_restore: error: input file does not appear to be a valid archive (too short?)\n",
+      "seconds": 0.009611957999368315
+    },
+    {
+      "argv": [
+        "pg_ctl",
+        "-D",
+        "/tmp/wf-local-7lwqnz81/data",
+        "-m",
+        "fast",
+        "-w",
+        "stop"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to shut down.... done\nserver stopped\n",
+      "stderr": "",
+      "seconds": 0.10909316600009333
+    }
+  ],
+  "tests": [
+    {
+      "name": "capacity_one_and_adjacent_ranges",
+      "status": "تأییدشده با آزمون",
+      "seconds": 2.0688599170007365,
+      "evidence": {
+        "accepted_contenders": 1,
+        "rejected_overlap": 1,
+        "adjacent_accepted": 1
+      }
+    },
+    {
+      "name": "capacity_three",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.37424770799952967,
+      "evidence": {
+        "connections": 4,
+        "accepted": 3,
+        "capacity_rejections": 1,
+        "pattern": "serialized explicit unit allocation"
+      }
+    },
+    {
+      "name": "multi_resource_rollback",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.05038816699925519,
+      "evidence": {
+        "partial_allocations_and_events": 0
+      }
+    },
+    {
+      "name": "payment_idempotency",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.09281912500046019,
+      "evidence": {
+        "notifications": 10,
+        "notification_ids": 2,
+        "financial_effects": 1,
+        "stable_receipt": [
+          "1"
+        ],
+        "mismatched_amount_rejected": true
+      }
+    },
+    {
+      "name": "completion_stock_commission_atomicity",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.10135716699915065,
+      "evidence": {
+        "failed_completion_residue": 0,
+        "successful_completions": 1,
+        "remaining_stock": 0,
+        "commissions": 1
+      }
+    },
+    {
+      "name": "outbox_worker_crash_restart",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.42599704200074484,
+      "evidence": {
+        "workers": 2,
+        "events": 21,
+        "effects": 21,
+        "drain_seconds": 0.3549196669991943,
+        "unknown_external_auto_retries": 0,
+        "limitation": "local DB effects only; no actual external send"
+      }
+    },
+    {
+      "name": "private_file_session_permission_fixture",
+      "status": "تأییدشده با آزمون",
+      "seconds": 0.5958005829998001,
+      "evidence": {
+        "before_revocation": 200,
+        "denied_statuses": [
+          403,
+          403,
+          403,
+          403
+        ],
+        "old_session_after_revocation": 403,
+        "cache_control": "no-store",
+        "fixture_only": true
+      }
+    },
+    {
+      "name": "database_restart_dump_restore",
+      "status": "تأییدشده با آزمون",
+      "seconds": 1.3600588339995738,
+      "evidence": {
+        "dump_seconds": 0.06369441700007883,
+        "restore_seconds": 0.4861082080005872,
+        "archive_sha256": "396ec5ec6a664f6ee26966d4ac67a655137e68f54140ab8f4b0155ba70438ae1",
+        "source": {
+          "sha256": "f3c831353fd2c0369dc47d33cabdbd953f85a9171c7bfbea8f8a0d718cbeb7c0",
+          "table_rows": {
+            "allocation": 6,
+            "commission": 1,
+            "completion": 1,
+            "effect": 21,
+            "media": 1,
+            "outbox": 22,
+            "payment": 1,
+            "session": 3,
+            "stock": 1,
+            "unit": 3
+          },
+          "sequences": "allocation_id_seq:10\npayment_receipt_seq:13"
+        },
+        "restored": {
+          "sha256": "f3c831353fd2c0369dc47d33cabdbd953f85a9171c7bfbea8f8a0d718cbeb7c0",
+          "table_rows": {
+            "allocation": 6,
+            "commission": 1,
+            "completion": 1,
+            "effect": 21,
+            "media": 1,
+            "outbox": 22,
+            "payment": 1,
+            "session": 3,
+            "stock": 1,
+            "unit": 3
+          },
+          "sequences": "allocation_id_seq:10\npayment_receipt_seq:13"
+        },
+        "corrupt_archive_rejected": true,
+        "RTO_RPO_proven": false,
+        "limitation": "same cluster logical restore; no PITR, host loss, media or production load"
+      }
+    }
+  ],
+  "python_version": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "settings": "{\"version\" : \"PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit\", \"isolation\" : \"read committed\", \"fsync\" : \"on\", \"full_page_writes\" : \"on\", \"synchronous_commit\" : \"on\", \"listen_addresses\" : \"\"}",
+  "postgres_log": "2026-11-02 20:05:56.531 +0330 [80035] LOG:  starting PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit\n2026-11-02 20:05:56.531 +0330 [80035] LOG:  listening on Unix socket \"/tmp/wf-local-7lwqnz81/socket/.s.PGSQL.55439\"\n2026-11-02 20:05:56.534 +0330 [80036] LOG:  database system was shut down at 2026-11-02 20:05:56 +0330\n2026-11-02 20:05:56.536 +0330 [80035] LOG:  database system is ready to accept connections\n2026-11-02 20:05:58.777 +0330 [80056] ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\n2026-11-02 20:05:58.777 +0330 [80056] DETAIL:  Key (unit, span)=(artist, [30,90)) conflicts with existing key (unit, span)=(artist, [0,60)).\n2026-11-02 20:05:58.777 +0330 [80056] STATEMENT:  INSERT INTO allocation(booking,unit,span) VALUES('b','artist','[30,90)')\n2026-11-02 20:05:59.174 +0330 [80084] ERROR:  capacity exhausted\n2026-11-02 20:05:59.174 +0330 [80084] CONTEXT:  PL/pgSQL function inline_code_block line 4 at RAISE\n2026-11-02 20:05:59.174 +0330 [80084] STATEMENT:  DO $$ DECLARE u int; BEGIN\n\t        PERFORM pg_advisory_xact_lock(440018);\n\t        SELECT candidate.id INTO u FROM unit candidate WHERE NOT EXISTS(SELECT 1 FROM allocation a WHERE a.unit='chair:'||candidate.id AND a.span && '[0,60)'::int4range) ORDER BY candidate.id LIMIT 1;\n\t        IF u IS NULL THEN RAISE EXCEPTION 'capacity exhausted'; END IF;\n\t        INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-1','chair:'||u,'[0,60)');\n\t        PERFORM pg_sleep(.1); END $$;\n2026-11-02 20:05:59.241 +0330 [80091] ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\n2026-11-02 20:05:59.241 +0330 [80091] DETAIL:  Key (unit, span)=(last-resource, [30,60)) conflicts with existing key (unit, span)=(last-resource, [0,60)).\n2026-11-02 20:05:59.241 +0330 [80091] STATEMENT:  INSERT INTO allocation(booking,unit,span) VALUES('partial','last-resource','[30,60)');\n2026-11-02 20:05:59.325 +0330 [80120] ERROR:  payment amount mismatch\n2026-11-02 20:05:59.325 +0330 [80120] CONTEXT:  PL/pgSQL function receive_payment(text,text,integer) line 6 at RAISE\n2026-11-02 20:05:59.325 +0330 [80120] STATEMENT:  SELECT receive_payment('synthetic','payment-1',101)\n2026-11-02 20:05:59.359 +0330 [80126] ERROR:  injected before commission\n2026-11-02 20:05:59.359 +0330 [80126] CONTEXT:  PL/pgSQL function complete_service(text,boolean) line 7 at RAISE\n2026-11-02 20:05:59.359 +0330 [80126] STATEMENT:  SELECT complete_service('failure',true)\n2026-11-02 20:05:59.394 +0330 [80133] ERROR:  insufficient stock\n2026-11-02 20:05:59.394 +0330 [80133] CONTEXT:  PL/pgSQL function complete_service(text,boolean) line 6 at RAISE\n2026-11-02 20:05:59.394 +0330 [80133] STATEMENT:  SELECT complete_service('service-a',false)\n2026-11-02 20:05:59.497 +0330 [80149] FATAL:  terminating connection due to administrator command\n2026-11-02 20:05:59.497 +0330 [80149] STATEMENT:  SELECT pg_sleep(12);\n2026-11-02 20:06:00.659 +0330 [80035] LOG:  received fast shutdown request\n2026-11-02 20:06:00.659 +0330 [80035] LOG:  aborting any active transactions\n2026-11-02 20:06:00.660 +0330 [80035] LOG:  background worker \"logical replication launcher\" (PID 80042) exited with exit code 1\n2026-11-02 20:06:00.660 +0330 [80037] LOG:  shutting down\n2026-11-02 20:06:00.670 +0330 [80035] LOG:  database system is shut down\n2026-11-02 20:06:00.806 +0330 [80221] LOG:  starting PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit\n2026-11-02 20:06:00.807 +0330 [80221] LOG:  listening on Unix socket \"/tmp/wf-local-7lwqnz81/socket/.s.PGSQL.55439\"\n2026-11-02 20:06:00.810 +0330 [80222] LOG:  database system was shut down at 2026-11-02 20:06:00 +0330\n2026-11-02 20:06:00.812 +0330 [80221] LOG:  database system is ready to accept connections\n2026-11-02 20:06:01.835 +0330 [80221] LOG:  received fast shutdown request\n2026-11-02 20:06:01.835 +0330 [80221] LOG:  aborting any active transactions\n2026-11-02 20:06:01.836 +0330 [80221] LOG:  background worker \"logical replication launcher\" (PID 80228) exited with exit code 1\n2026-11-02 20:06:01.836 +0330 [80223] LOG:  shutting down\n2026-11-02 20:06:01.845 +0330 [80221] LOG:  database system is shut down\n",
+  "elapsed_seconds": 6.136831583000458,
+  "finished_utc": "2026-11-02T16:36:02.027557+00:00",
+  "source_sha256": {
+    "run.py": "61c8860e93728c9c18e0e17bb45f64bc9c0250d7c811bb4aa7cf6792a1d278ce",
+    "schema.sql": "1734704ea96d1065f27fe6f0b46f1c9cbd63cedd84b6845ef732cb05457d60e3",
+    "PLAN.md": "64dcde27642b4063b3bc73523b21345aa81036c6678fe821071f3d4831bdea24"
+  }
+}

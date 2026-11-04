@@ -1,0 +1,266 @@
+{
+  "started_utc": "2026-11-02T16:35:38.467470+00:00",
+  "synthetic_only": true,
+  "cash_purchase_toman": 0,
+  "commands": [
+    {
+      "argv": [
+        "psql",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "psql (PostgreSQL) 14.23 (Homebrew)\n",
+      "stderr": "",
+      "seconds": 0.018964207998578786
+    },
+    {
+      "argv": [
+        "initdb",
+        "-D",
+        "/tmp/wf-local-9mdampfq/data",
+        "-U",
+        "wf_validator",
+        "--auth-local=trust",
+        "--auth-host=reject",
+        "--no-locale"
+      ],
+      "returncode": 0,
+      "stdout": "The files belonging to this database system will be owned by user \"hossein\".\nThis user must also own the server process.\n\nThe database cluster will be initialized with locale \"C\".\nThe default database encoding has accordingly been set to \"SQL_ASCII\".\nThe default text search configuration will be set to \"english\".\n\nData page checksums are disabled.\n\ncreating directory /tmp/wf-local-9mdampfq/data ... ok\ncreating subdirectories ... ok\nselecting dynamic shared memory implementation ... posix\nselecting default max_connections ... 100\nselecting default shared_buffers ... 128MB\nselecting default time zone ... Asia/Tehran\ncreating configuration files ... ok\nrunning bootstrap script ... ok\nperforming post-bootstrap initialization ... ok\nsyncing data to disk ... ok\n\nSuccess. You can now start the database server using:\n\n    pg_ctl -D /tmp/wf-local-9mdampfq/data -l logfile start\n\n",
+      "stderr": "",
+      "seconds": 1.9819589579983585
+    },
+    {
+      "argv": [
+        "pg_ctl",
+        "-D",
+        "/tmp/wf-local-9mdampfq/data",
+        "-l",
+        "/tmp/wf-local-9mdampfq/postgres.log",
+        "-w",
+        "start"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to start.... done\nserver started\n",
+      "stderr": "",
+      "seconds": 0.4548729590005678
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "postgres"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.07165433299996948
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "{\"version\" : \"PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit\", \"isolation\" : \"read committed\", \"fsync\" : \"on\", \"full_page_writes\" : \"on\", \"synchronous_commit\" : \"on\", \"listen_addresses\" : \"\"}\n",
+      "stderr": "",
+      "seconds": 0.01373266599875933
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.6067782079990138
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "seconds": 0.015806999999767868
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\nDETAIL:  Key (unit, span)=(artist, [30,90)) conflicts with existing key (unit, span)=(artist, [0,60)).\n",
+      "seconds": 2.0014894579999236
+    },
+    {
+      "argv": [
+        "psql",
+        "async"
+      ],
+      "returncode": 0,
+      "stdout": "\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.01910995900107082
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "2\n",
+      "stderr": "",
+      "seconds": 0.014671375000034459
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.11927300000024843
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\nDETAIL:  Key (unit, span)=(chair:1, [0,60)) conflicts with existing key (unit, span)=(chair:1, [0,60)).\nCONTEXT:  SQL statement \"INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-0','chair:'||u,'[0,60)')\"\nPL/pgSQL function inline_code_block line 5 at SQL statement\n",
+      "seconds": 0.1211614580006426
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\nDETAIL:  Key (unit, span)=(chair:1, [0,60)) conflicts with existing key (unit, span)=(chair:1, [0,60)).\nCONTEXT:  SQL statement \"INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-2','chair:'||u,'[0,60)')\"\nPL/pgSQL function inline_code_block line 5 at SQL statement\n",
+      "seconds": 0.12350512499870092
+    },
+    {
+      "argv": [
+        "psql",
+        "-X",
+        "-qAt",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-d",
+        "wf_synthetic"
+      ],
+      "returncode": 3,
+      "stdout": "",
+      "stderr": "ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\nDETAIL:  Key (unit, span)=(chair:1, [0,60)) conflicts with existing key (unit, span)=(chair:1, [0,60)).\nCONTEXT:  SQL statement \"INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-3','chair:'||u,'[0,60)')\"\nPL/pgSQL function inline_code_block line 5 at SQL statement\n",
+      "seconds": 0.12509624999984226
+    },
+    {
+      "argv": [
+        "pg_ctl",
+        "-D",
+        "/tmp/wf-local-9mdampfq/data",
+        "-m",
+        "fast",
+        "-w",
+        "stop"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to shut down.... done\nserver stopped\n",
+      "stderr": "",
+      "seconds": 0.109159166999234
+    }
+  ],
+  "tests": [
+    {
+      "name": "capacity_one_and_adjacent_ranges",
+      "status": "تأییدشده با آزمون",
+      "seconds": 2.053252708999935,
+      "evidence": {
+        "accepted_contenders": 1,
+        "rejected_overlap": 1,
+        "adjacent_accepted": 1
+      }
+    },
+    {
+      "name": "capacity_three",
+      "status": "ردشده با شواهد",
+      "seconds": 0.13275033299942152,
+      "error": "AssertionError('capacity three winners')"
+    }
+  ],
+  "python_version": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "settings": "{\"version\" : \"PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit\", \"isolation\" : \"read committed\", \"fsync\" : \"on\", \"full_page_writes\" : \"on\", \"synchronous_commit\" : \"on\", \"listen_addresses\" : \"\"}",
+  "postgres_log": "2026-11-02 20:05:40.847 +0330 [79878] LOG:  starting PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit\n2026-11-02 20:05:40.847 +0330 [79878] LOG:  listening on Unix socket \"/tmp/wf-local-9mdampfq/socket/.s.PGSQL.55439\"\n2026-11-02 20:05:40.850 +0330 [79879] LOG:  database system was shut down at 2026-11-02 20:05:40 +0330\n2026-11-02 20:05:40.854 +0330 [79878] LOG:  database system is ready to accept connections\n2026-11-02 20:05:43.637 +0330 [79913] ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\n2026-11-02 20:05:43.637 +0330 [79913] DETAIL:  Key (unit, span)=(artist, [30,90)) conflicts with existing key (unit, span)=(artist, [0,60)).\n2026-11-02 20:05:43.637 +0330 [79913] STATEMENT:  INSERT INTO allocation(booking,unit,span) VALUES('b','artist','[30,90)')\n2026-11-02 20:05:43.799 +0330 [79936] ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\n2026-11-02 20:05:43.799 +0330 [79936] DETAIL:  Key (unit, span)=(chair:1, [0,60)) conflicts with existing key (unit, span)=(chair:1, [0,60)).\n2026-11-02 20:05:43.799 +0330 [79936] CONTEXT:  SQL statement \"INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-0','chair:'||u,'[0,60)')\"\n\tPL/pgSQL function inline_code_block line 5 at SQL statement\n2026-11-02 20:05:43.799 +0330 [79936] STATEMENT:  DO $$ DECLARE u int; BEGIN\n\t        PERFORM pg_advisory_xact_lock(440018);\n\t        SELECT id INTO u FROM unit WHERE NOT EXISTS(SELECT 1 FROM allocation WHERE unit='chair:'||id AND span && '[0,60)'::int4range) ORDER BY id LIMIT 1;\n\t        IF u IS NULL THEN RAISE EXCEPTION 'capacity exhausted'; END IF;\n\t        INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-0','chair:'||u,'[0,60)');\n\t        PERFORM pg_sleep(.1); END $$;\n2026-11-02 20:05:43.802 +0330 [79938] ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\n2026-11-02 20:05:43.802 +0330 [79938] DETAIL:  Key (unit, span)=(chair:1, [0,60)) conflicts with existing key (unit, span)=(chair:1, [0,60)).\n2026-11-02 20:05:43.802 +0330 [79938] CONTEXT:  SQL statement \"INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-2','chair:'||u,'[0,60)')\"\n\tPL/pgSQL function inline_code_block line 5 at SQL statement\n2026-11-02 20:05:43.802 +0330 [79938] STATEMENT:  DO $$ DECLARE u int; BEGIN\n\t        PERFORM pg_advisory_xact_lock(440018);\n\t        SELECT id INTO u FROM unit WHERE NOT EXISTS(SELECT 1 FROM allocation WHERE unit='chair:'||id AND span && '[0,60)'::int4range) ORDER BY id LIMIT 1;\n\t        IF u IS NULL THEN RAISE EXCEPTION 'capacity exhausted'; END IF;\n\t        INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-2','chair:'||u,'[0,60)');\n\t        PERFORM pg_sleep(.1); END $$;\n2026-11-02 20:05:43.804 +0330 [79939] ERROR:  conflicting key value violates exclusion constraint \"allocation_unit_span_excl\"\n2026-11-02 20:05:43.804 +0330 [79939] DETAIL:  Key (unit, span)=(chair:1, [0,60)) conflicts with existing key (unit, span)=(chair:1, [0,60)).\n2026-11-02 20:05:43.804 +0330 [79939] CONTEXT:  SQL statement \"INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-3','chair:'||u,'[0,60)')\"\n\tPL/pgSQL function inline_code_block line 5 at SQL statement\n2026-11-02 20:05:43.804 +0330 [79939] STATEMENT:  DO $$ DECLARE u int; BEGIN\n\t        PERFORM pg_advisory_xact_lock(440018);\n\t        SELECT id INTO u FROM unit WHERE NOT EXISTS(SELECT 1 FROM allocation WHERE unit='chair:'||id AND span && '[0,60)'::int4range) ORDER BY id LIMIT 1;\n\t        IF u IS NULL THEN RAISE EXCEPTION 'capacity exhausted'; END IF;\n\t        INSERT INTO allocation(booking,unit,span) VALUES('chair-booking-3','chair:'||u,'[0,60)');\n\t        PERFORM pg_sleep(.1); END $$;\n2026-11-02 20:05:43.808 +0330 [79878] LOG:  received fast shutdown request\n2026-11-02 20:05:43.808 +0330 [79878] LOG:  aborting any active transactions\n2026-11-02 20:05:43.809 +0330 [79878] LOG:  background worker \"logical replication launcher\" (PID 79885) exited with exit code 1\n2026-11-02 20:05:43.809 +0330 [79880] LOG:  shutting down\n2026-11-02 20:05:43.819 +0330 [79878] LOG:  database system is shut down\n",
+  "fatal_error": "AssertionError('capacity three winners')",
+  "elapsed_seconds": 5.5328334999994695,
+  "finished_utc": "2026-11-02T16:35:44.000157+00:00",
+  "source_sha256": {
+    "run.py": "76e2654f34bf289470955b5f2d13abe210c7da3c876a0db4fe02112528848832",
+    "schema.sql": "1734704ea96d1065f27fe6f0b46f1c9cbd63cedd84b6845ef732cb05457d60e3",
+    "PLAN.md": "64dcde27642b4063b3bc73523b21345aa81036c6678fe821071f3d4831bdea24"
+  }
+}
