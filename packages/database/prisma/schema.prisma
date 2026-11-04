@@ -46,6 +46,16 @@ enum SecurityEventType {
   CUSTOMER_LOGIN_SUCCESS
   CUSTOMER_SESSION_REVOKED
   CUSTOMER_UNAUTHORIZED_ACCESS_ATTEMPT
+  CONSULTATION_REQUEST_CREATED
+  CONSULTATION_REQUEST_ASSIGNED
+  CONSULTATION_REQUEST_INFO_REQUESTED
+  CONSULTATION_REQUEST_INFO_PROVIDED
+  CONSULTATION_REQUEST_PROPOSAL_READY
+  CONSULTATION_REQUEST_RESULT_COMMUNICATED
+  CONSULTATION_REQUEST_WITHDRAWN
+  CONSULTATION_REQUEST_REOPENED
+  CONSULTATION_REQUEST_CLOSED
+  CONSULTATION_REQUEST_BUDGET_BREACHED
 }
 
 enum RecoveryRequestStatus {
@@ -73,6 +83,8 @@ model Staff {
   artistProfile     ArtistProfile?
   createdContracts  CommissionContract[]         @relation("ContractCreator")
   approvedContracts CommissionContract[]         @relation("ContractApprover")
+  assignedConsultations ConsultationRequest[]     @relation("AssignedConsultant")
+  consultationEvents    ConsultationRequestEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -179,6 +191,7 @@ model Service {
   tariffs  ArtistServiceTariff[]
   phases   ServicePhase[]
   bookings ServiceBooking[]
+  consultationRequests ConsultationRequest[]
 
   @@index([isPublished])
 }
@@ -363,6 +376,8 @@ model Customer {
   otpCodes  CustomerOtp[]
   auditLogs AuditLog[]
   bookings  ServiceBooking[]
+  consultationRequests ConsultationRequest[]
+  consultationEvents   ConsultationRequestEvent[]
 
   @@index([phone, isActive])
 }
@@ -415,4 +430,94 @@ model ServiceBookingResourceAllocation {
 
   @@index([resourceId, startTime, endTime])
   @@index([bookingId])
+}
+
+enum ConsultationStatus {
+  PENDING_REVIEW
+  ASSIGNED_CONSULTANT
+  NEEDS_INFO
+  PROPOSAL_READY
+  RESULT_COMMUNICATED
+  CLOSED_WITHOUT_BOOKING
+  WITHDRAWN
+}
+
+enum ConsultationEventType {
+  CREATED
+  ASSIGNED
+  INFO_REQUESTED
+  INFO_PROVIDED
+  PROPOSAL_PREPARED
+  RESULT_COMMUNICATED
+  REOPENED
+  CLOSED
+  WITHDRAWN
+  BUDGET_BREACHED
+}
+
+model ConsultationRequest {
+  id                      String             @id @default(uuid())
+  customerId              String
+  serviceId               String?
+  customServiceTitle      String?
+  customerNotes           String
+  preferredSchedule       String?
+  status                  ConsultationStatus @default(PENDING_REVIEW)
+
+  // Responsible staff
+  assignedStaffId         String?
+
+  // 4 working hours SLA Budget (240 minutes)
+  budgetTotalMinutes      Int                @default(240)
+  elapsedActiveMinutes    Int                @default(0)
+  lastActiveTimerStartedAt DateTime?         @default(now())
+  isPaused                Boolean            @default(false)
+  pausedAt                DateTime?
+  isBudgetBreached        Boolean            @default(false)
+  budgetBreachedAt        DateTime?
+
+  // Proposal & Result
+  proposalDetails         Json?
+  resultNotes             String?
+  resultCommunicatedAt    DateTime?
+  resultChannel           String?
+
+  // Closure / Reopen / Withdrawal
+  completedAt             DateTime?
+  reopenReason            String?
+  withdrawalReason        String?
+
+  version                 Int                @default(1)
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+
+  customer                Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  assignedStaff           Staff?             @relation("AssignedConsultant", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  service                 Service?           @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  events                  ConsultationRequestEvent[]
+
+  @@index([customerId, status])
+  @@index([assignedStaffId, status])
+  @@index([status, isBudgetBreached])
+  @@index([createdAt])
+}
+
+model ConsultationRequestEvent {
+  id              String                @id @default(uuid())
+  requestId       String
+  eventType       ConsultationEventType
+  fromStatus      ConsultationStatus?
+  toStatus        ConsultationStatus
+  actorStaffId    String?
+  actorCustomerId String?
+  note            String?
+  metadata        Json?
+  createdAt       DateTime              @default(now())
+
+  request         ConsultationRequest   @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  actorStaff      Staff?                @relation(fields: [actorStaffId], references: [id], onDelete: SetNull)
+  actorCustomer   Customer?             @relation(fields: [actorCustomerId], references: [id], onDelete: SetNull)
+
+  @@index([requestId, createdAt])
+  @@index([eventType])
 }

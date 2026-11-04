@@ -5,6 +5,7 @@ import {
   StaffProfile,
   CustomerDto,
   CustomerBookingDto,
+  ConsultationRequestDto,
 } from '@salon/shared';
 import { cookies } from 'next/headers';
 
@@ -181,6 +182,44 @@ export async function getCustomerBookings(): Promise<CustomerBookingDto[]> {
       throw error;
     }
     console.warn('[getCustomerBookings] Error fetching bookings:', error);
+    return [];
+  }
+}
+
+/**
+ * Server-side fetcher for current customer's consultation requests
+ */
+export async function getCustomerConsultations(): Promise<ConsultationRequestDto[]> {
+  try {
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('salon_customer_session')?.value;
+    if (!sessionToken) {
+      return [];
+    }
+
+    const res = await fetch(`${getApiBaseUrl()}/api/customer/consultations`, {
+      headers: {
+        Authorization: `Bearer ${sessionToken}`,
+        Cookie: `salon_customer_session=${sessionToken}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      return [];
+    }
+
+    return (await res.json()) as ConsultationRequestDto[];
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'digest' in error &&
+      (error as { digest: string }).digest === 'DYNAMIC_SERVER_USAGE'
+    ) {
+      throw error;
+    }
+    console.warn('[getCustomerConsultations] Error fetching consultations:', error);
     return [];
   }
 }

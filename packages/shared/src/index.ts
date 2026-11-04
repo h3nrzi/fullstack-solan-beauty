@@ -454,4 +454,118 @@ export interface VerifyOtpResponse {
   customer: CustomerDto;
 }
 
+// ============================================================================
+// Ticket 05: Consultation Request, Follow-up & SLA Budget
+// ============================================================================
+
+export const ConsultationStatus = {
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  ASSIGNED_CONSULTANT: 'ASSIGNED_CONSULTANT',
+  NEEDS_INFO: 'NEEDS_INFO',
+  PROPOSAL_READY: 'PROPOSAL_READY',
+  RESULT_COMMUNICATED: 'RESULT_COMMUNICATED',
+  CLOSED_WITHOUT_BOOKING: 'CLOSED_WITHOUT_BOOKING',
+  WITHDRAWN: 'WITHDRAWN',
+} as const;
+
+export type ConsultationStatus = (typeof ConsultationStatus)[keyof typeof ConsultationStatus];
+
+export const ConsultationEventType = {
+  CREATED: 'CREATED',
+  ASSIGNED: 'ASSIGNED',
+  INFO_REQUESTED: 'INFO_REQUESTED',
+  INFO_PROVIDED: 'INFO_PROVIDED',
+  PROPOSAL_PREPARED: 'PROPOSAL_PREPARED',
+  RESULT_COMMUNICATED: 'RESULT_COMMUNICATED',
+  REOPENED: 'REOPENED',
+  CLOSED: 'CLOSED',
+  WITHDRAWN: 'WITHDRAWN',
+  BUDGET_BREACHED: 'BUDGET_BREACHED',
+} as const;
+
+export type ConsultationEventType = (typeof ConsultationEventType)[keyof typeof ConsultationEventType];
+
+export interface ConsultationRequestEventDto {
+  id: string;
+  requestId: string;
+  eventType: ConsultationEventType;
+  fromStatus?: ConsultationStatus | null;
+  toStatus: ConsultationStatus;
+  actorStaffId?: string | null;
+  actorStaffName?: string | null;
+  actorCustomerId?: string | null;
+  note?: string | null;
+  metadata?: any;
+  createdAt: Date | string;
+}
+
+export interface ConsultationRequestDto {
+  id: string;
+  customerId: string;
+  customerName?: string | null;
+  customerPhone?: string | null;
+  serviceId?: string | null;
+  serviceName?: string | null;
+  customServiceTitle?: string | null;
+  customerNotes: string;
+  preferredSchedule?: string | null;
+  status: ConsultationStatus;
+  assignedStaffId?: string | null;
+  assignedStaffName?: string | null;
+  budgetTotalMinutes: number;
+  elapsedActiveMinutes: number;
+  remainingMinutes: number;
+  isPaused: boolean;
+  isBudgetBreached: boolean;
+  proposalDetails?: any;
+  resultNotes?: string | null;
+  resultCommunicatedAt?: Date | string | null;
+  resultChannel?: string | null;
+  reopenReason?: string | null;
+  withdrawalReason?: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  events?: ConsultationRequestEventDto[];
+}
+
+export interface CreateConsultationRequestDto {
+  serviceId?: string;
+  customServiceTitle?: string;
+  customerNotes: string;
+  preferredSchedule?: string;
+}
+
+export interface AssignConsultationDto {
+  staffId: string;
+  note?: string;
+}
+
+export interface RequestInfoConsultationDto {
+  question: string;
+}
+
+export interface ProvideInfoConsultationDto {
+  answer: string;
+}
+
+export interface ProposalConsultationDto {
+  proposalDetails: Record<string, any>;
+  note?: string;
+}
+
+export interface CommunicateResultConsultationDto {
+  resultNotes: string;
+  channel?: string;
+}
+
+export interface ReopenConsultationDto {
+  reason: string;
+  assignedStaffId: string;
+}
+
+export interface WithdrawConsultationDto {
+  reason?: string;
+}
+
+
 

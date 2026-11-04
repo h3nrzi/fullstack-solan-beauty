@@ -1,12 +1,12 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { getCurrentCustomer, getCustomerBookings } from '../../../lib/api';
+import { getCurrentCustomer, getCustomerBookings, getCustomerConsultations } from '../../../lib/api';
 import { CustomerLoginClientView } from '../../../components/customer/CustomerLoginClientView';
 import { CustomerDashboardView } from '../../../components/customer/CustomerDashboardView';
 
 export const metadata: Metadata = {
   title: 'حساب کاربری مشتری | سالن زیبایی VIP',
-  description: 'ورود امن با رمز یک‌بارمصرف و مشاهده نوبت‌ها و سوابق شخصی مشتری',
+  description: 'ورود امن با رمز یک‌بارمصرف و مشاهده نوبت‌ها، درخواست‌های مشاوره و سوابق شخصی مشتری',
 };
 
 export default async function CustomerAccountPage() {
@@ -20,11 +20,18 @@ export default async function CustomerAccountPage() {
     );
   }
 
-  const bookings = await getCustomerBookings();
+  const [bookings, consultations] = await Promise.all([
+    getCustomerBookings(),
+    getCustomerConsultations(),
+  ]);
 
   return (
     <div className="container mx-auto py-8 sm:py-12 px-4 sm:px-6 max-w-5xl">
-      <CustomerDashboardView customer={customer} bookings={bookings} />
+      <CustomerDashboardView
+        customer={customer}
+        bookings={bookings}
+        consultations={consultations}
+      />
     </div>
   );
 }
