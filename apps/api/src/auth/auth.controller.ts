@@ -3,6 +3,7 @@ import { Response, Request } from 'express';
 import { StaffAuthService } from './staff-auth.service';
 import { SessionService } from './session.service';
 import { LoginDto, VerifyMfaDto, VerifyRecoveryCodeDto, RequestContext } from './dto/auth.dto';
+import { AuthSuccessResponseBody } from '@salon/shared';
 
 @Controller('api/auth/staff')
 export class AuthController {
@@ -27,7 +28,7 @@ export class AuthController {
     @Body() body: VerifyMfaDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response
-  ) {
+  ): Promise<AuthSuccessResponseBody> {
     const context: RequestContext = {
       ipAddress: req.ip || req.socket.remoteAddress,
       userAgent: req.headers['user-agent'],
@@ -45,6 +46,7 @@ export class AuthController {
         username: result.staff.username,
         fullName: result.staff.fullName,
         role: result.staff.role,
+        isActive: result.staff.isActive,
       },
     };
   }
@@ -55,7 +57,7 @@ export class AuthController {
     @Body() body: VerifyRecoveryCodeDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response
-  ) {
+  ): Promise<AuthSuccessResponseBody> {
     const context: RequestContext = {
       ipAddress: req.ip || req.socket.remoteAddress,
       userAgent: req.headers['user-agent'],
@@ -77,6 +79,7 @@ export class AuthController {
         username: result.staff.username,
         fullName: result.staff.fullName,
         role: result.staff.role,
+        isActive: result.staff.isActive,
       },
     };
   }

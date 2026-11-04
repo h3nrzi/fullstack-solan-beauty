@@ -1,18 +1,48 @@
 @import "tailwindcss";
 
-:root {
-  --background: #fdfbf7;
-  --foreground: #1c1917;
-  --primary: #9d174d;
-  --primary-foreground: #ffffff;
-  --muted: #f5f5f4;
-  --muted-foreground: #78716c;
-  --border: #e7e5e4;
+@layer base {
+  :root {
+    --background: #fdfbf7;
+    --foreground: #1c1917;
+    --primary: #881337;
+    --primary-hover: #700f2e;
+    --primary-foreground: #ffffff;
+    --card: #ffffff;
+    --card-foreground: #1c1917;
+    --muted: #f5f5f4;
+    --muted-foreground: #78716c;
+    --border: #e7e5e4;
+    --error: #b91c1c;
+    --error-bg: #fef2f2;
+    --success: #15803d;
+    --success-bg: #f0fdf4;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Vazirmatn', Oxygen, Ubuntu, Cantarell, sans-serif;
+    direction: rtl;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Accessibility: ensure high-visibility focus indicator */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
 }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  direction: rtl;
+/* Screen reader only utility for WCAG 2.2 accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
