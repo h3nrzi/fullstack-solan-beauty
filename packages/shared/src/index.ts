@@ -103,6 +103,12 @@ export const SecurityEventType = {
   CONTRACT_PROPOSED: 'CONTRACT_PROPOSED',
   CONTRACT_APPROVED: 'CONTRACT_APPROVED',
   CONTRACT_REJECTED: 'CONTRACT_REJECTED',
+  SHIFT_CONFIGURED: 'SHIFT_CONFIGURED',
+  LEAVE_CONFIGURED: 'LEAVE_CONFIGURED',
+  RESOURCE_CONFIGURED: 'RESOURCE_CONFIGURED',
+  SERVICE_PHASES_CONFIGURED: 'SERVICE_PHASES_CONFIGURED',
+  SCHEDULE_RULE_CHANGED: 'SCHEDULE_RULE_CHANGED',
+  CAPACITY_CONFLICT_DETECTED: 'CAPACITY_CONFLICT_DETECTED',
 } as const;
 
 export type SecurityEventType = (typeof SecurityEventType)[keyof typeof SecurityEventType];
@@ -277,3 +283,133 @@ export interface CreateCommissionContractInput {
   effectiveFrom: string | Date;
   effectiveTo?: string | Date;
 }
+
+// ============================================================================
+// Ticket 03: Schedule, Capacity, Phases & Slots
+// ============================================================================
+
+export const BookingStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  CANCELLED: 'CANCELLED',
+  COMPLETED: 'COMPLETED',
+} as const;
+export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus];
+
+export interface SharedResourceDto {
+  id: string;
+  name: string;
+  capacity: number;
+  description?: string | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateSharedResourceInput {
+  name: string;
+  capacity: number;
+  description?: string;
+  isActive?: boolean;
+}
+
+export interface ServicePhaseDto {
+  id: string;
+  serviceId: string;
+  name: string;
+  sequenceOrder: number;
+  durationMinutes: number;
+  isPause: boolean;
+  resourceId?: string | null;
+  resourceName?: string | null;
+  resourceUnits: number;
+  setupBufferMinutes: number;
+  cleanupBufferMinutes: number;
+}
+
+export interface CreateServicePhaseInput {
+  name: string;
+  sequenceOrder: number;
+  durationMinutes: number;
+  isPause?: boolean;
+  resourceId?: string | null;
+  resourceUnits?: number;
+  setupBufferMinutes?: number;
+  cleanupBufferMinutes?: number;
+}
+
+export interface WorkingShiftDto {
+  id: string;
+  artistId: string;
+  dayOfWeek: number; // 0 = Saturday, 1 = Sunday, ..., 6 = Friday
+  startTime: string; // "09:00"
+  endTime: string;   // "18:00"
+  isActive: boolean;
+  specificDate?: Date | null;
+}
+
+export interface CreateWorkingShiftInput {
+  artistId: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  isActive?: boolean;
+  specificDate?: string | Date | null;
+}
+
+export interface ArtistLeaveDto {
+  id: string;
+  artistId: string;
+  startDate: Date;
+  endDate: Date;
+  reason?: string | null;
+  isApproved: boolean;
+}
+
+export interface CreateArtistLeaveInput {
+  artistId: string;
+  startDate: string | Date;
+  endDate: string | Date;
+  reason?: string;
+  isApproved?: boolean;
+}
+
+export interface AvailableSlotDto {
+  startTime: string; // ISO string
+  endTime: string;   // ISO string
+  artistId: string;
+  artistName: string;
+  serviceId: string;
+  serviceName: string;
+  totalDurationMinutes: number;
+  phaseDetails?: {
+    phaseOrder: number;
+    phaseName: string;
+    isPause: boolean;
+    startTime: string;
+    endTime: string;
+    resourceName?: string | null;
+  }[];
+}
+
+export interface ImpactedBookingDto {
+  id: string;
+  serviceId: string;
+  serviceName?: string;
+  artistId: string;
+  artistName?: string;
+  customerName: string;
+  customerPhone?: string | null;
+  startTime: Date;
+  endTime: Date;
+  status: BookingStatus;
+  isImpacted: boolean;
+  impactReason?: string | null;
+}
+
+export interface RuleImpactResultDto {
+  ruleChange: string;
+  impactedCount: number;
+  impactedBookings: ImpactedBookingDto[];
+}
+

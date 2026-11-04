@@ -208,6 +208,16 @@ export default function ServicesPage() {
                         </div>
                       )}
                     </div>
+
+                    <div className="mt-4 pt-3 border-t border-stone-100 flex justify-end">
+                      <Link
+                        href="/booking"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-900 bg-rose-50 hover:bg-rose-100/80 px-3 py-1.5 rounded-lg border border-rose-200 transition-colors"
+                      >
+                        <Calendar className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>مشاهده زمان‌های آزاد</span>
+                      </Link>
+                    </div>
                   </div>
                 </article>
               ))}

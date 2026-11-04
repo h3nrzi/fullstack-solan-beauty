@@ -34,6 +34,12 @@ enum SecurityEventType {
   CONTRACT_PROPOSED
   CONTRACT_APPROVED
   CONTRACT_REJECTED
+  SHIFT_CONFIGURED
+  LEAVE_CONFIGURED
+  RESOURCE_CONFIGURED
+  SERVICE_PHASES_CONFIGURED
+  SCHEDULE_RULE_CHANGED
+  CAPACITY_CONFLICT_DETECTED
 }
 
 enum RecoveryRequestStatus {
@@ -161,7 +167,9 @@ model Service {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  tariffs ArtistServiceTariff[]
+  tariffs  ArtistServiceTariff[]
+  phases   ServicePhase[]
+  bookings ServiceBooking[]
 
   @@index([isPublished])
 }
@@ -179,6 +187,9 @@ model ArtistProfile {
   staff     Staff                  @relation(fields: [staffId], references: [id], onDelete: Cascade)
   tariffs   ArtistServiceTariff[]
   contracts CommissionContract[]
+  shifts    WorkingShift[]
+  leaves    ArtistLeave[]
+  bookings  ServiceBooking[]
 
   @@index([level])
 }
@@ -229,4 +240,118 @@ model CommissionContract {
 
   @@index([artistId, status])
   @@index([artistId, effectiveFrom])
+}
+
+model SharedResource {
+  id          String   @id @default(uuid())
+  name        String
+  capacity    Int      @default(1)
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  phases      ServicePhase[]
+  allocations ServiceBookingResourceAllocation[]
+
+  @@index([isActive])
+}
+
+model ServicePhase {
+  id                   String   @id @default(uuid())
+  serviceId            String
+  name                 String
+  sequenceOrder        Int
+  durationMinutes      Int
+  isPause              Boolean  @default(false)
+  resourceId           String?
+  resourceUnits        Int      @default(1)
+  setupBufferMinutes   Int      @default(0)
+  cleanupBufferMinutes Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  service  Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  resource SharedResource? @relation(fields: [resourceId], references: [id], onDelete: SetNull)
+
+  @@index([serviceId, sequenceOrder])
+}
+
+model WorkingShift {
+  id           String    @id @default(uuid())
+  artistId     String
+  dayOfWeek    Int       // 0 = Saturday, 1 = Sunday, ..., 6 = Friday (Persian calendar)
+  startTime    String    // "09:00"
+  endTime      String    // "18:00"
+  isActive     Boolean   @default(true)
+  specificDate DateTime? // Optional specific calendar date
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  artist ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId, dayOfWeek, isActive])
+  @@index([artistId, specificDate])
+}
+
+model ArtistLeave {
+  id         String   @id @default(uuid())
+  artistId   String
+  startDate  DateTime
+  endDate    DateTime
+  reason     String?
+  isApproved Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  artist ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId, startDate, endDate])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model ServiceBooking {
+  id            String        @id @default(uuid())
+  serviceId     String
+  artistId      String
+  customerName  String
+  customerPhone String?
+  startTime     DateTime
+  endTime       DateTime
+  status        BookingStatus @default(CONFIRMED)
+  isImpacted    Boolean       @default(false)
+  impactReason  String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  service     Service                            @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  artist      ArtistProfile                      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  allocations ServiceBookingResourceAllocation[]
+
+  @@index([artistId, startTime, endTime])
+  @@index([serviceId, startTime])
+  @@index([status, isImpacted])
+}
+
+model ServiceBookingResourceAllocation {
+  id         String   @id @default(uuid())
+  bookingId  String
+  resourceId String
+  phaseOrder Int
+  startTime  DateTime
+  endTime    DateTime
+  unitsUsed  Int      @default(1)
+  createdAt  DateTime @default(now())
+
+  booking  ServiceBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  resource SharedResource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@index([resourceId, startTime, endTime])
+  @@index([bookingId])
 }
