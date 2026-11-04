@@ -98,6 +98,11 @@ export const SecurityEventType = {
   INDEPENDENT_RECOVERY_REQUESTED: 'INDEPENDENT_RECOVERY_REQUESTED',
   INDEPENDENT_RECOVERY_APPROVED: 'INDEPENDENT_RECOVERY_APPROVED',
   INDEPENDENT_RECOVERY_REJECTED: 'INDEPENDENT_RECOVERY_REJECTED',
+  SERVICE_CREATED: 'SERVICE_CREATED',
+  TARIFF_UPDATED: 'TARIFF_UPDATED',
+  CONTRACT_PROPOSED: 'CONTRACT_PROPOSED',
+  CONTRACT_APPROVED: 'CONTRACT_APPROVED',
+  CONTRACT_REJECTED: 'CONTRACT_REJECTED',
 } as const;
 
 export type SecurityEventType = (typeof SecurityEventType)[keyof typeof SecurityEventType];
@@ -173,4 +178,102 @@ export interface StandardApiResponse<T> {
   data?: T;
   timestamp: string;
   path: string;
+}
+
+// ============================================================================
+// Ticket 02: Services, Artists, Tariffs & Commission Contracts
+// ============================================================================
+
+export const ServicePriceType = {
+  FIXED: 'FIXED',
+  RANGE: 'RANGE',
+} as const;
+export type ServicePriceType = (typeof ServicePriceType)[keyof typeof ServicePriceType];
+
+export const ArtistLevel = {
+  JUNIOR: 'JUNIOR',
+  MID: 'MID',
+  SENIOR: 'SENIOR',
+  MASTER: 'MASTER',
+} as const;
+export type ArtistLevel = (typeof ArtistLevel)[keyof typeof ArtistLevel];
+
+export const ContractStatus = {
+  PENDING_APPROVAL: 'PENDING_APPROVAL',
+  ACTIVE: 'ACTIVE',
+  REJECTED: 'REJECTED',
+  SUPERSEDED: 'SUPERSEDED',
+} as const;
+export type ContractStatus = (typeof ContractStatus)[keyof typeof ContractStatus];
+
+export interface ServiceDto {
+  id: string;
+  name: string;
+  description?: string | null;
+  priceType: ServicePriceType;
+  fixedPrice?: number | null;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  fixedDeposit?: number | null;
+  durationMinutes?: number | null;
+  requiresReview: boolean;
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PublicArtistProfileDto {
+  id: string;
+  staffId: string;
+  fullName: string;
+  bio?: string | null;
+  experienceYears?: number | null;
+  level: ArtistLevel;
+  portfolioUrls: string[];
+  tariffs?: {
+    serviceId: string;
+    serviceName: string;
+    priceType: ServicePriceType;
+    fixedPrice?: number | null;
+    minPrice?: number | null;
+    maxPrice?: number | null;
+    fixedDeposit?: number | null;
+    durationMinutes?: number | null;
+  }[];
+}
+
+export interface CommissionContractDto {
+  id: string;
+  artistId: string;
+  creatorStaffId: string;
+  approverStaffId?: string | null;
+  commissionRate: number;
+  deductMaterialCost: boolean;
+  effectiveFrom: Date;
+  effectiveTo?: Date | null;
+  status: ContractStatus;
+  rejectionReason?: string | null;
+  approvedAt?: Date | null;
+  version: number;
+  createdAt: Date;
+}
+
+export interface CreateServiceInput {
+  name: string;
+  description?: string;
+  priceType: ServicePriceType;
+  fixedPrice?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  fixedDeposit?: number;
+  durationMinutes?: number;
+  requiresReview?: boolean;
+  isPublished?: boolean;
+}
+
+export interface CreateCommissionContractInput {
+  commissionRate: number;
+  deductMaterialCost?: boolean;
+  effectiveFrom: string | Date;
+  effectiveTo?: string | Date;
 }

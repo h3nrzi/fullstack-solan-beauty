@@ -29,6 +29,11 @@ enum SecurityEventType {
   INDEPENDENT_RECOVERY_REQUESTED
   INDEPENDENT_RECOVERY_APPROVED
   INDEPENDENT_RECOVERY_REJECTED
+  SERVICE_CREATED
+  TARIFF_UPDATED
+  CONTRACT_PROPOSED
+  CONTRACT_APPROVED
+  CONTRACT_REJECTED
 }
 
 enum RecoveryRequestStatus {
@@ -53,6 +58,9 @@ model Staff {
   auditLogs         AuditLog[]
   requestedRecoveries IndependentRecoveryRequest[] @relation("TargetStaff")
   approvedRecoveries  IndependentRecoveryRequest[] @relation("ApproverStaff")
+  artistProfile     ArtistProfile?
+  createdContracts  CommissionContract[]         @relation("ContractCreator")
+  approvedContracts CommissionContract[]         @relation("ContractApprover")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -117,4 +125,108 @@ model AuditLog {
 
   @@index([staffId, eventType])
   @@index([createdAt])
+}
+
+enum ServicePriceType {
+  FIXED
+  RANGE
+}
+
+enum ArtistLevel {
+  JUNIOR
+  MID
+  SENIOR
+  MASTER
+}
+
+enum ContractStatus {
+  PENDING_APPROVAL
+  ACTIVE
+  REJECTED
+  SUPERSEDED
+}
+
+model Service {
+  id              String           @id @default(uuid())
+  name            String
+  description     String?
+  priceType       ServicePriceType
+  fixedPrice      Int?
+  minPrice        Int?
+  maxPrice        Int?
+  fixedDeposit    Int?
+  durationMinutes Int?
+  requiresReview  Boolean          @default(false)
+  isPublished     Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  tariffs ArtistServiceTariff[]
+
+  @@index([isPublished])
+}
+
+model ArtistProfile {
+  id              String      @id @default(uuid())
+  staffId         String      @unique
+  bio             String?
+  experienceYears Int?
+  level           ArtistLevel @default(SENIOR)
+  portfolioUrls   String[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  staff     Staff                  @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  tariffs   ArtistServiceTariff[]
+  contracts CommissionContract[]
+
+  @@index([level])
+}
+
+model ArtistServiceTariff {
+  id              String           @id @default(uuid())
+  artistId        String
+  serviceId       String
+  priceType       ServicePriceType
+  fixedPrice      Int?
+  minPrice        Int?
+  maxPrice        Int?
+  fixedDeposit    Int?
+  durationMinutes Int?
+  version         Int              @default(1)
+  isActive        Boolean          @default(true)
+  validFrom       DateTime         @default(now())
+  validTo         DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  artist  ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  service Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([artistId, serviceId, isActive])
+  @@index([serviceId, version])
+}
+
+model CommissionContract {
+  id                 String         @id @default(uuid())
+  artistId           String
+  creatorStaffId     String
+  approverStaffId    String?
+  commissionRate     Float
+  deductMaterialCost Boolean        @default(true)
+  effectiveFrom      DateTime
+  effectiveTo        DateTime?
+  status             ContractStatus @default(PENDING_APPROVAL)
+  rejectionReason    String?
+  approvedAt         DateTime?
+  version            Int            @default(1)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  artist   ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  creator  Staff         @relation("ContractCreator", fields: [creatorStaffId], references: [id], onDelete: Cascade)
+  approver Staff?        @relation("ContractApprover", fields: [approverStaffId], references: [id], onDelete: SetNull)
+
+  @@index([artistId, status])
+  @@index([artistId, effectiveFrom])
 }

@@ -17,26 +17,43 @@ export default function HomePage() {
         </p>
 
         <div className="grid grid-cols-3 gap-3 mb-8 text-xs text-stone-600">
-          <div className="flex flex-col items-center p-3 rounded-xl bg-stone-50 border border-stone-100">
+          <Link
+            href="/services"
+            className="flex flex-col items-center p-3 rounded-xl bg-stone-50 border border-stone-100 hover:bg-rose-50/60 hover:border-rose-200 transition-colors"
+          >
             <CalendarCheck className="w-5 h-5 text-rose-800 mb-1" aria-hidden="true" />
-            <span>رزرو نوبت</span>
-          </div>
-          <div className="flex flex-col items-center p-3 rounded-xl bg-stone-50 border border-stone-100">
+            <span>خدمات و رزرو</span>
+          </Link>
+          <Link
+            href="/services"
+            className="flex flex-col items-center p-3 rounded-xl bg-stone-50 border border-stone-100 hover:bg-rose-50/60 hover:border-rose-200 transition-colors"
+          >
             <Users className="w-5 h-5 text-rose-800 mb-1" aria-hidden="true" />
             <span>آرتیست‌ها</span>
-          </div>
-          <div className="flex flex-col items-center p-3 rounded-xl bg-stone-50 border border-stone-100">
+          </Link>
+          <Link
+            href="/login"
+            className="flex flex-col items-center p-3 rounded-xl bg-stone-50 border border-stone-100 hover:bg-rose-50/60 hover:border-rose-200 transition-colors"
+          >
             <ShieldCheck className="w-5 h-5 text-rose-800 mb-1" aria-hidden="true" />
             <span>ورود امن</span>
-          </div>
+          </Link>
         </div>
 
-        <Link
-          href="/login"
-          className="inline-flex w-full justify-center items-center py-3.5 px-4 rounded-xl text-white bg-rose-900 hover:bg-rose-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-800 focus-visible:ring-offset-2 transition-all duration-200 font-semibold shadow-md hover:shadow-lg active:scale-[0.99]"
-        >
-          ورود به پنل کارکنان
-        </Link>
+        <div className="flex flex-col gap-3">
+          <Link
+            href="/services"
+            className="inline-flex w-full justify-center items-center py-3 px-4 rounded-xl text-stone-900 bg-stone-100 hover:bg-stone-200 border border-stone-200/80 font-semibold transition-all duration-200 shadow-sm"
+          >
+            معرفی و مقایسه خدمات و آرتیست‌ها
+          </Link>
+          <Link
+            href="/login"
+            className="inline-flex w-full justify-center items-center py-3.5 px-4 rounded-xl text-white bg-rose-900 hover:bg-rose-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-800 focus-visible:ring-offset-2 transition-all duration-200 font-semibold shadow-md hover:shadow-lg active:scale-[0.99]"
+          >
+            ورود به پنل کارکنان
+          </Link>
+        </div>
       </div>
     </main>
   );
