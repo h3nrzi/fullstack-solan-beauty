@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
 import { Request } from 'express';
 import { StaffRole } from '@salon/database';
 import { IndependentRecoveryService } from './independent-recovery.service';
@@ -15,6 +15,13 @@ import {
 @Controller('api/staff/emergency-recovery')
 export class EmergencyRecoveryController {
   constructor(private readonly recoveryService: IndependentRecoveryService) {}
+
+  @Get('requests')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(StaffRole.MANAGER)
+  async listPendingRequests() {
+    return await this.recoveryService.listPendingRequests();
+  }
 
   @Post('request')
   @HttpCode(HttpStatus.CREATED)

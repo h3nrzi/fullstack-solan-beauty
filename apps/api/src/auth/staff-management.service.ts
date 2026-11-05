@@ -45,4 +45,17 @@ export class StaffManagementService {
 
     return updatedStaff;
   }
+
+  async listStaff(): Promise<Pick<Staff, 'id' | 'username' | 'fullName' | 'role' | 'isActive'>[]> {
+    return await this.prisma.staff.findMany({
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        username: true,
+        fullName: true,
+        role: true,
+        isActive: true,
+      },
+    });
+  }
 }

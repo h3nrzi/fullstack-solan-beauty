@@ -123,6 +123,26 @@ export function LoginClientView({ initialStaff }: LoginClientViewProps) {
           </p>
         </header>
 
+        {!staffData && (
+          <div className="flex items-center justify-between mb-5 px-1 text-xs" aria-label="پیشرفت مرحله ورود">
+            <span className="font-semibold text-rose-900">
+              {step === 'credentials' ? 'گام ۱ از ۲: مشخصات کاربری' : 'گام ۲ از ۲: تایید هویت دومرحله‌ای'}
+            </span>
+            <div className="flex gap-1.5" aria-hidden="true">
+              <span
+                className={`h-1.5 w-8 rounded-full transition-colors duration-200 ${
+                  step === 'credentials' ? 'bg-rose-900' : 'bg-emerald-600'
+                }`}
+              />
+              <span
+                className={`h-1.5 w-8 rounded-full transition-colors duration-200 ${
+                  step !== 'credentials' ? 'bg-rose-900' : 'bg-stone-200'
+                }`}
+              />
+            </div>
+          </div>
+        )}
+
         {error && (
           <div className="mb-5">
             <Alert type="error">{error}</Alert>

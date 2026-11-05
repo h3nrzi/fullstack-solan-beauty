@@ -28,6 +28,12 @@ export class StaffController {
     };
   }
 
+  @Get()
+  @Roles(StaffRole.MANAGER)
+  async listStaff() {
+    return await this.staffManagementService.listStaff();
+  }
+
   @Post(':id/revoke-sessions')
   @HttpCode(HttpStatus.OK)
   @Roles(StaffRole.MANAGER)

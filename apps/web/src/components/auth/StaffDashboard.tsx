@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { StaffProfile, StaffRole } from '@salon/shared';
 import { ShieldCheck, User, LogOut, CheckCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -66,15 +67,24 @@ export function StaffDashboard({ staff, loading, onLogout }: StaffDashboardProps
         </div>
       </div>
 
-      <Button
-        variant="outline"
-        loading={loading}
-        onClick={onLogout}
-        className="w-full text-rose-900 hover:bg-rose-50 hover:border-rose-300"
-      >
-        <LogOut className="w-4 h-4 ml-2" aria-hidden="true" />
-        خروج از حساب کاربری
-      </Button>
+      <div className="space-y-2.5">
+        <Link
+          href="/admin"
+          className="w-full inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl px-4 py-3 text-sm bg-rose-900 text-white hover:bg-rose-800 shadow-sm hover:shadow"
+        >
+          ورود به میز کار و پنل پرسنل
+        </Link>
+
+        <Button
+          variant="outline"
+          loading={loading}
+          onClick={onLogout}
+          className="w-full text-rose-900 hover:bg-rose-50 hover:border-rose-300"
+        >
+          <LogOut className="w-4 h-4 ml-2" aria-hidden="true" />
+          خروج از حساب کاربری
+        </Button>
+      </div>
     </div>
   );
 }

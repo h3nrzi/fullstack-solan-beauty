@@ -1,0 +1,7 @@
+$kind: http-request
+name: List Pending Recovery Requests (Admin)
+method: GET
+url: '{{baseUrl}}/api/staff/emergency-recovery/requests'
+order: 1500
+headers:
+  Authorization: 'Bearer {{staffSessionToken}}'

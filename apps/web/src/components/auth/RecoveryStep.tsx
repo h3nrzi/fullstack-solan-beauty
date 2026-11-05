@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 
@@ -46,17 +47,26 @@ export function RecoveryStep({
         <button
           type="button"
           onClick={onBackToCredentials}
-          className="hover:text-stone-800 underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-400 rounded"
+          className="hover:text-stone-800 underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-400 rounded cursor-pointer"
         >
           بازگشت به ابتدا
         </button>
         <button
           type="button"
           onClick={onBackToMfa}
-          className="text-rose-800 hover:text-rose-900 underline font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-800 rounded"
+          className="text-rose-800 hover:text-rose-900 underline font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-800 rounded cursor-pointer"
         >
           ورود با اپلیکیشن Authenticator
         </button>
+      </div>
+
+      <div className="text-center pt-1">
+        <Link
+          href="/recovery"
+          className="text-xs text-stone-500 hover:text-rose-800 underline transition-colors"
+        >
+          تمام کدهای بازیابی را گم کرده‌اید؟ بازیابی اضطراری
+        </Link>
       </div>
     </form>
   );

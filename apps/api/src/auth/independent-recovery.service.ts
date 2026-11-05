@@ -254,4 +254,25 @@ export class IndependentRecoveryService {
       },
     });
   }
+
+  async listPendingRequests() {
+    return await this.prisma.independentRecoveryRequest.findMany({
+      where: {
+        status: RecoveryRequestStatus.PENDING,
+      },
+      include: {
+        targetStaff: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            role: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
 }
