@@ -1,0 +1,21 @@
+$kind: http-request
+name: 'Set Artist Tariff'
+method: POST
+url: '{{baseUrl}}/api/admin/artists/{{artistId}}/tariffs'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: artistId
+    value: '{{artistId}}'
+body:
+  type: json
+  content: |-
+    {
+      "serviceId": "{{serviceId}}",
+      "priceType": "FIXED",
+      "fixedPrice": 450000,
+      "fixedDeposit": 90000,
+      "durationMinutes": 110
+    }

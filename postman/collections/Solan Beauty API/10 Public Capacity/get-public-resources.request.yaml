@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Public Resources
+method: GET
+url: '{{baseUrl}}/api/public/capacity/resources'
+order: 2000

@@ -1,0 +1,5 @@
+$kind: http-request
+name: List My Consultations
+method: GET
+url: '{{baseUrl}}/api/customer/consultations'
+order: 2000

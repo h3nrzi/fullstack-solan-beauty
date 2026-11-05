@@ -1,0 +1,17 @@
+$kind: http-request
+name: Withdraw Consultation
+method: POST
+url: '{{baseUrl}}/api/customer/consultations/{{consultationId}}/withdraw'
+order: 5000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: consultationId
+    value: '{{consultationId}}'
+body:
+  type: json
+  content: |-
+    {
+      "reason": "No longer interested"
+    }

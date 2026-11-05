@@ -1,0 +1,8 @@
+$kind: http-request
+name: Get My Bookings
+method: GET
+url: '{{baseUrl}}/api/customer/bookings'
+order: 6000
+headers:
+  - key: Authorization
+    value: 'Bearer {{customerSessionToken}}'

@@ -1,0 +1,9 @@
+$kind: collection
+name: Admin Catalog
+description: 'Admin endpoints for managing services, artist profiles, tariffs, and commission contracts. Requires MANAGER role.'
+order: 6000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{staffSessionToken}}'

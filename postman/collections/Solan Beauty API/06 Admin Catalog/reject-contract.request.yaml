@@ -1,0 +1,17 @@
+$kind: http-request
+name: 'Reject Commission Contract'
+method: POST
+url: '{{baseUrl}}/api/admin/contracts/{{contractId}}/reject'
+order: 7000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: contractId
+    value: '{{contractId}}'
+body:
+  type: json
+  content: |-
+    {
+      "reason": "Contract terms not acceptable"
+    }

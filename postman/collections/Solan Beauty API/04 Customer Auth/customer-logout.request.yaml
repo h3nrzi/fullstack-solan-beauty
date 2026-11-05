@@ -1,0 +1,8 @@
+$kind: http-request
+name: Customer Logout
+method: POST
+url: '{{baseUrl}}/api/customer/auth/logout'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{customerSessionToken}}'

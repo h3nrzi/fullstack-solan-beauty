@@ -1,0 +1,14 @@
+$kind: http-request
+name: Request OTP
+method: POST
+url: '{{baseUrl}}/api/customer/auth/otp/request'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "phone": "09123456789"
+    }

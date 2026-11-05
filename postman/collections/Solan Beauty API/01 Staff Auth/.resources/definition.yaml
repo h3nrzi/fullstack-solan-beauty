@@ -1,0 +1,4 @@
+$kind: collection
+name: Staff Auth
+description: 'Staff authentication endpoints — login, MFA, recovery, and logout.'
+order: 1000

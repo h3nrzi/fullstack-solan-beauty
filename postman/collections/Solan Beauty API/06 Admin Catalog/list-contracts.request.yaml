@@ -1,0 +1,8 @@
+$kind: http-request
+name: 'List Artist Contracts'
+method: GET
+url: '{{baseUrl}}/api/admin/artists/{{artistId}}/contracts'
+order: 5000
+pathVariables:
+  - key: artistId
+    value: '{{artistId}}'

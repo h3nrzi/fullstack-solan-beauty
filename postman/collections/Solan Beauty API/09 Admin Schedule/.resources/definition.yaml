@@ -1,0 +1,9 @@
+$kind: collection
+name: Admin Schedule
+description: 'Admin scheduling endpoints — manage shared resources, artist shifts, leaves, and service phases. Requires MANAGER role.'
+order: 9000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{staffSessionToken}}'

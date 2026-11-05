@@ -1,0 +1,8 @@
+$kind: http-request
+name: 'Approve Commission Contract'
+method: POST
+url: '{{baseUrl}}/api/admin/contracts/{{contractId}}/approve'
+order: 6000
+pathVariables:
+  - key: contractId
+    value: '{{contractId}}'

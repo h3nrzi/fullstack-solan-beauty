@@ -1,0 +1,6 @@
+$kind: collection
+name: Solan Beauty API
+description: 'Complete API collection for the Solan Beauty salon management system. Covers staff auth, customer auth, catalog, consultations, and scheduling.'
+variables:
+  - key: baseUrl
+    value: 'http://localhost:4000'

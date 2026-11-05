@@ -1,0 +1,15 @@
+$kind: http-request
+name: Verify OTP
+method: POST
+url: '{{baseUrl}}/api/customer/auth/otp/verify'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "phone": "09123456789",
+      "code": "123456"
+    }

@@ -1,0 +1,11 @@
+$kind: http-request
+name: 'Get Customer Profile'
+method: GET
+url: '{{baseUrl}}/api/customer/profile/{{customerId}}'
+order: 5000
+headers:
+  - key: Authorization
+    value: 'Bearer {{customerSessionToken}}'
+pathVariables:
+  - key: customerId
+    value: '{{customerId}}'

@@ -1,0 +1,20 @@
+$kind: http-request
+name: 'Propose Commission Contract'
+method: POST
+url: '{{baseUrl}}/api/admin/artists/{{artistId}}/contracts'
+order: 4000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: artistId
+    value: '{{artistId}}'
+body:
+  type: json
+  content: |-
+    {
+      "commissionRate": 0.35,
+      "deductMaterialCost": true,
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31"
+    }

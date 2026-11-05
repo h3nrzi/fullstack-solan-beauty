@@ -1,0 +1,17 @@
+$kind: http-request
+name: Create Shared Resource
+method: POST
+url: '{{baseUrl}}/api/admin/schedule/resources'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Facial Bed 1",
+      "capacity": 1,
+      "description": "Main facial treatment bed",
+      "isActive": true
+    }

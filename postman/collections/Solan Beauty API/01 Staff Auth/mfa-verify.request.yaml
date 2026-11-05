@@ -1,0 +1,14 @@
+$kind: http-request
+name: MFA Verify
+method: POST
+url: "{{baseUrl}}/api/auth/staff/mfa-verify"
+order: 2000
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "tempToken": "{{tempToken}}",
+      "code": "686096"
+    }

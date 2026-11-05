@@ -1,0 +1,5 @@
+$kind: http-request
+name: List Impacted Bookings
+method: GET
+url: '{{baseUrl}}/api/admin/schedule/impacted-bookings'
+order: 8000

@@ -1,0 +1,4 @@
+$kind: collection
+name: Emergency Recovery
+description: 'Emergency account recovery flow for staff. Approve/reject requires MANAGER role.'
+order: 3000

@@ -1,0 +1,4 @@
+$kind: collection
+name: Customer Auth
+description: 'Customer authentication via OTP (phone number). Session token returned on verify.'
+order: 4000

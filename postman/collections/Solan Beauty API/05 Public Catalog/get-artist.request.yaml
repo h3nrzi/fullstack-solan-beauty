@@ -1,0 +1,8 @@
+$kind: http-request
+name: 'Get Artist by ID'
+method: GET
+url: '{{baseUrl}}/api/public/artists/{{artistId}}'
+order: 3000
+pathVariables:
+  - key: artistId
+    value: '{{artistId}}'

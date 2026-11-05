@@ -1,0 +1,14 @@
+$kind: http-request
+name: Recovery Verify
+method: POST
+url: "{{baseUrl}}/api/auth/staff/recovery-verify"
+order: 3000
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "tempToken": "{{tempToken}}",
+      "recoveryCode": "RCP1-C3D4-E5F6"
+    }

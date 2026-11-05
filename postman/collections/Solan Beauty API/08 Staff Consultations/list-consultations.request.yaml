@@ -1,0 +1,12 @@
+$kind: http-request
+name: List Consultations
+method: GET
+url: '{{baseUrl}}/api/admin/consultations'
+order: 1000
+queryParams:
+  - key: status
+    value: OPEN
+    disabled: true
+  - key: assignedStaffId
+    value: '{{staffId}}'
+    disabled: true

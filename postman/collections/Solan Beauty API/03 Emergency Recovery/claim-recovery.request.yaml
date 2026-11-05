@@ -1,0 +1,14 @@
+$kind: http-request
+name: Claim Recovery
+method: POST
+url: "{{baseUrl}}/api/staff/emergency-recovery/claim"
+order: 3000
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "requestId": "24d2de72-9448-404b-9ab8-4c3aebac9382",
+      "claimToken": "5735e945c2a0e46ca1fdf176f45893a3bfca5181486a2ab6ea7187284b02f576"
+    }

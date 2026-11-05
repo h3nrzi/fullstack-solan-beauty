@@ -1,0 +1,5 @@
+$kind: http-request
+name: List Shared Resources
+method: GET
+url: '{{baseUrl}}/api/admin/schedule/resources'
+order: 2000

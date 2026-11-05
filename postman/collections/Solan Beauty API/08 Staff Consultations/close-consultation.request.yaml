@@ -1,0 +1,17 @@
+$kind: http-request
+name: Close Consultation
+method: POST
+url: '{{baseUrl}}/api/admin/consultations/{{consultationId}}/close'
+order: 8000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: consultationId
+    value: '{{consultationId}}'
+body:
+  type: json
+  content: |-
+    {
+      "note": "Consultation closed without booking — customer decided not to proceed"
+    }

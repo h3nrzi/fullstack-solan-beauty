@@ -1,0 +1,17 @@
+$kind: http-request
+name: Provide Info
+method: POST
+url: '{{baseUrl}}/api/customer/consultations/{{consultationId}}/info'
+order: 4000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: consultationId
+    value: '{{consultationId}}'
+body:
+  type: json
+  content: |-
+    {
+      "answer": "My hair is naturally dark brown and I have not colored it before"
+    }

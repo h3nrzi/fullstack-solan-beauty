@@ -1,0 +1,4 @@
+$kind: collection
+name: Public Capacity
+description: 'Publicly accessible capacity and slot availability endpoints — no authentication required.'
+order: 10000

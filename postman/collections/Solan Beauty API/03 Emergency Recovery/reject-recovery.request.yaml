@@ -1,0 +1,17 @@
+$kind: http-request
+name: Reject Recovery
+method: POST
+url: '{{baseUrl}}/api/staff/emergency-recovery/reject'
+order: 4000
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Authorization
+    value: 'Bearer {{staffSessionToken}}'
+body:
+  type: json
+  content: |-
+    {
+      "requestId": "recovery-request-id-here",
+      "reason": "Request not authorized"
+    }

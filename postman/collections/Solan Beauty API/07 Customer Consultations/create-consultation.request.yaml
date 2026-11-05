@@ -1,0 +1,16 @@
+$kind: http-request
+name: Create Consultation Request
+method: POST
+url: '{{baseUrl}}/api/customer/consultations'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "serviceId": "{{serviceId}}",
+      "customerNotes": "I would like to know more about hair coloring options",
+      "preferredSchedule": "Weekday mornings"
+    }

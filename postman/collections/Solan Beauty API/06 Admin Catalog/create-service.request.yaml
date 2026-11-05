@@ -1,0 +1,21 @@
+$kind: http-request
+name: Create Service
+method: POST
+url: '{{baseUrl}}/api/admin/services'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Hair Coloring",
+      "description": "Full hair coloring service",
+      "priceType": "FIXED",
+      "fixedPrice": 500000,
+      "fixedDeposit": 100000,
+      "durationMinutes": 120,
+      "requiresReview": false,
+      "isPublished": true
+    }

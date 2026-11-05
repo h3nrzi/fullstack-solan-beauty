@@ -1,0 +1,7 @@
+$kind: http-request
+name: Revoke Staff Sessions (Admin)
+method: POST
+url: "{{baseUrl}}/api/staff/{{staffId}}/revoke-sessions"
+order: 2000
+pathVariables:
+  staffId: "{{staffId}}"

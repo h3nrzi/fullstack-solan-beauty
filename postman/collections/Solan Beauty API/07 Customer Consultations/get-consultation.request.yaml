@@ -1,0 +1,8 @@
+$kind: http-request
+name: 'Get Consultation by ID'
+method: GET
+url: '{{baseUrl}}/api/customer/consultations/{{consultationId}}'
+order: 3000
+pathVariables:
+  - key: consultationId
+    value: '{{consultationId}}'

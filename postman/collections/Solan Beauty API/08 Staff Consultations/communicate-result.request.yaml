@@ -1,0 +1,18 @@
+$kind: http-request
+name: Communicate Result
+method: POST
+url: '{{baseUrl}}/api/admin/consultations/{{consultationId}}/communicate-result'
+order: 6000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: consultationId
+    value: '{{consultationId}}'
+body:
+  type: json
+  content: |-
+    {
+      "resultNotes": "Proposal has been shared with the customer via phone",
+      "channel": "PHONE"
+    }

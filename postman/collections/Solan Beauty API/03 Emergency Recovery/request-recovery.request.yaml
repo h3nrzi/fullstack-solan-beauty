@@ -1,0 +1,14 @@
+$kind: http-request
+name: Request Recovery
+method: POST
+url: "{{baseUrl}}/api/staff/emergency-recovery/request"
+order: 1000
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "targetStaffId": "{{staffId}}",
+      "requesterNote": "Locked out of account, need emergency access 2"
+    }

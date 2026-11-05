@@ -1,0 +1,8 @@
+$kind: http-request
+name: 'Get Artist Shifts'
+method: GET
+url: '{{baseUrl}}/api/admin/schedule/shifts/artist/{{artistId}}'
+order: 5000
+pathVariables:
+  - key: artistId
+    value: '{{artistId}}'

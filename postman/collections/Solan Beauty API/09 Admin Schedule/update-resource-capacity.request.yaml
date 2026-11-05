@@ -1,0 +1,17 @@
+$kind: http-request
+name: Update Resource Capacity
+method: PATCH
+url: '{{baseUrl}}/api/admin/schedule/resources/{{resourceId}}/capacity'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: resourceId
+    value: '{{resourceId}}'
+body:
+  type: json
+  content: |-
+    {
+      "capacity": 2
+    }

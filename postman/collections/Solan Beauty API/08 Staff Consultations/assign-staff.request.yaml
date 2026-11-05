@@ -1,0 +1,18 @@
+$kind: http-request
+name: Assign Staff
+method: POST
+url: '{{baseUrl}}/api/admin/consultations/{{consultationId}}/assign'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: consultationId
+    value: '{{consultationId}}'
+body:
+  type: json
+  content: |-
+    {
+      "staffId": "{{staffId}}",
+      "note": "Assigning to senior artist for review"
+    }

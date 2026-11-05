@@ -1,0 +1,9 @@
+$kind: collection
+name: Customer Consultations
+description: 'Customer-facing consultation request endpoints. Requires customer session token.'
+order: 7000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{customerSessionToken}}'

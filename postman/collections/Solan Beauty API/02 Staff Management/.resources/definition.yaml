@@ -1,0 +1,9 @@
+$kind: collection
+name: Staff Management
+description: 'Manage staff profiles, sessions, and roles. Requires staff session token.'
+order: 2000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{staffSessionToken}}'

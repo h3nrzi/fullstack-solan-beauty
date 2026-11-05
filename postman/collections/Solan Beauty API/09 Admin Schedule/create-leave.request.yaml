@@ -1,0 +1,18 @@
+$kind: http-request
+name: Create Artist Leave
+method: POST
+url: '{{baseUrl}}/api/admin/schedule/leaves'
+order: 6000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "artistId": "{{artistId}}",
+      "startDate": "2026-12-01",
+      "endDate": "2026-12-07",
+      "reason": "Annual leave",
+      "isApproved": true
+    }

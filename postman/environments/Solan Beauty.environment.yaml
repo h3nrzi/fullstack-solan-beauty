@@ -1,0 +1,22 @@
+name: Solan Beauty
+values:
+  - key: baseUrl
+    value: 'http://localhost:4000'
+  - key: staffSessionToken
+    value: ''
+  - key: customerSessionToken
+    value: ''
+  - key: tempToken
+    value: ''
+  - key: staffId
+    value: ''
+  - key: artistId
+    value: ''
+  - key: serviceId
+    value: ''
+  - key: contractId
+    value: ''
+  - key: consultationId
+    value: ''
+  - key: resourceId
+    value: ''

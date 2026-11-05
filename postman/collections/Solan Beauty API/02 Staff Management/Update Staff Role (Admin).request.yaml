@@ -1,0 +1,15 @@
+$kind: http-request
+method: PATCH
+url: "{{baseUrl}}/api/staff/{{staffId}}/role"
+order: 3000
+headers:
+  Content-Type: application/json
+pathVariables:
+  staffId: "{{staffId}}"
+body:
+  type: json
+  content: |-
+    {
+      "role": "RECEPTIONIST",
+      "reason": "Promoted to receptionist"
+    }

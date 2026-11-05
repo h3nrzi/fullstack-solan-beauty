@@ -1,0 +1,9 @@
+$kind: collection
+name: Staff Consultations
+description: 'Staff-facing consultation management. Assign, review, propose, and close consultation requests. Requires staff session token.'
+order: 8000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{staffSessionToken}}'

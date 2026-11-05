@@ -1,0 +1,44 @@
+$kind: http-request
+name: Configure Service Phases
+method: POST
+url: '{{baseUrl}}/api/admin/schedule/services/{{serviceId}}/phases'
+order: 7000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: serviceId
+    value: '{{serviceId}}'
+body:
+  type: json
+  content: |-
+    {
+      "phases": [
+        {
+          "name": "Preparation",
+          "sequenceOrder": 1,
+          "durationMinutes": 15,
+          "isPause": false,
+          "setupBufferMinutes": 5
+        },
+        {
+          "name": "Color Application",
+          "sequenceOrder": 2,
+          "durationMinutes": 45,
+          "isPause": false
+        },
+        {
+          "name": "Processing Time",
+          "sequenceOrder": 3,
+          "durationMinutes": 30,
+          "isPause": true
+        },
+        {
+          "name": "Rinse and Finish",
+          "sequenceOrder": 4,
+          "durationMinutes": 30,
+          "isPause": false,
+          "cleanupBufferMinutes": 10
+        }
+      ]
+    }

@@ -1,0 +1,4 @@
+$kind: collection
+name: Public Catalog
+description: 'Publicly accessible catalog endpoints — no authentication required.'
+order: 5000

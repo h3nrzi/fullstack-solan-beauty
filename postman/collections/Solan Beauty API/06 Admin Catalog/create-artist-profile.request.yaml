@@ -1,0 +1,18 @@
+$kind: http-request
+name: Create Artist Profile
+method: POST
+url: '{{baseUrl}}/api/admin/artists/profile'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "staffId": "{{staffId}}",
+      "bio": "Experienced hair stylist with 5 years of expertise",
+      "experienceYears": 5,
+      "level": "SENIOR",
+      "portfolioUrls": []
+    }
