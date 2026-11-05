@@ -5,7 +5,7 @@ import { AdminHeader } from '../../components/admin/AdminHeader';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;

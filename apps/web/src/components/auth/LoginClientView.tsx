@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { StaffProfile } from '@salon/shared';
 import { ShieldCheck, ChevronRight } from 'lucide-react';
 import { Alert } from '../ui/Alert';
@@ -23,11 +24,18 @@ interface LoginClientViewProps {
 }
 
 export function LoginClientView({ initialStaff }: LoginClientViewProps) {
+  const router = useRouter();
   const [step, setStep] = useState<AuthStep>('credentials');
   const [tempToken, setTempToken] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [staffData, setStaffData] = useState<StaffProfile | null>(initialStaff);
   const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (initialStaff) {
+      router.push('/dashboard');
+    }
+  }, [initialStaff, router]);
 
   const handleCredentialsSubmit = async (credentials: { username: string; password: string }): Promise<void> => {
     setError(null);
@@ -45,6 +53,8 @@ export function LoginClientView({ initialStaff }: LoginClientViewProps) {
         setStep('mfa');
       } else if (result.staff) {
         setStaffData(result.staff);
+        router.push('/dashboard');
+        router.refresh();
       }
     } finally {
       setLoading(false);
@@ -63,6 +73,8 @@ export function LoginClientView({ initialStaff }: LoginClientViewProps) {
       }
 
       setStaffData(result.data);
+      router.push('/dashboard');
+      router.refresh();
     } finally {
       setLoading(false);
     }
@@ -80,6 +92,8 @@ export function LoginClientView({ initialStaff }: LoginClientViewProps) {
       }
 
       setStaffData(result.data);
+      router.push('/dashboard');
+      router.refresh();
     } finally {
       setLoading(false);
     }

@@ -22,7 +22,7 @@ export const metadata = {
   description: 'داشبورد عملیاتی و امنیتی پرسنل سالن زیبایی',
 };
 
-export default async function AdminDashboardPage() {
+export default async function StaffDashboardPage() {
   const staff = await getCurrentStaff();
   if (!staff) redirect('/login');
 
@@ -119,7 +119,7 @@ export default async function AdminDashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {isManager && (
             <>
-              <Link href="/admin/staff" className="group">
+              <Link href="/dashboard/staff" className="group">
                 <Card variant="interactive" className="h-full flex flex-col justify-between">
                   <div>
                     <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-900 border border-purple-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
@@ -139,7 +139,7 @@ export default async function AdminDashboardPage() {
                 </Card>
               </Link>
 
-              <Link href="/admin/staff/recovery-requests" className="group">
+              <Link href="/dashboard/staff/recovery-requests" className="group">
                 <Card variant="interactive" className="h-full flex flex-col justify-between">
                   <div>
                     <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">

@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getCurrentStaff } from '../../lib/api';
 import { LoginClientView } from '../../components/auth/LoginClientView';
 
@@ -11,6 +12,9 @@ export const metadata = {
 export default async function LoginPage() {
   // Check active session server-side
   const staff = await getCurrentStaff();
+  if (staff) {
+    redirect('/dashboard');
+  }
 
-  return <LoginClientView initialStaff={staff} />;
+  return <LoginClientView initialStaff={null} />;
 }

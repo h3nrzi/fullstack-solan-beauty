@@ -42,23 +42,23 @@ export function AdminHeader({ currentStaff }: AdminHeaderProps) {
   const navItems = [
     {
       label: 'میز کار',
-      href: '/admin',
+      href: '/dashboard',
       icon: <LayoutDashboard className="w-4 h-4 ml-1.5" />,
-      active: pathname === '/admin',
+      active: pathname === '/dashboard',
       managerOnly: false,
     },
     {
       label: 'مدیریت پرسنل',
-      href: '/admin/staff',
+      href: '/dashboard/staff',
       icon: <Users className="w-4 h-4 ml-1.5" />,
-      active: pathname === '/admin/staff',
+      active: pathname === '/dashboard/staff',
       managerOnly: true,
     },
     {
       label: 'درخواست‌های بازیابی',
-      href: '/admin/staff/recovery-requests',
+      href: '/dashboard/staff/recovery-requests',
       icon: <LifeBuoy className="w-4 h-4 ml-1.5" />,
-      active: pathname === '/admin/staff/recovery-requests',
+      active: pathname === '/dashboard/staff/recovery-requests',
       managerOnly: true,
     },
   ];
@@ -71,7 +71,7 @@ export function AdminHeader({ currentStaff }: AdminHeaderProps) {
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo & Title */}
           <div className="flex items-center gap-6">
-            <Link href="/admin" className="flex items-center gap-2.5 group">
+            <Link href="/dashboard" className="flex items-center gap-2.5 group">
               <div className="w-9 h-9 rounded-xl bg-rose-900 text-white flex items-center justify-center shadow-xs group-hover:bg-rose-800 transition-colors">
                 <Sparkles className="w-5 h-5 text-rose-200" />
               </div>

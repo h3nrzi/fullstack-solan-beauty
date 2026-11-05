@@ -69,7 +69,7 @@ export function StaffDashboard({ staff, loading, onLogout }: StaffDashboardProps
 
       <div className="space-y-2.5">
         <Link
-          href="/admin"
+          href="/dashboard"
           className="w-full inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl px-4 py-3 text-sm bg-rose-900 text-white hover:bg-rose-800 shadow-sm hover:shadow"
         >
           ورود به میز کار و پنل پرسنل
