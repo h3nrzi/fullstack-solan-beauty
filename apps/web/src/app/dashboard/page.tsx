@@ -9,7 +9,7 @@ import {
   LifeBuoy,
   Sparkles,
   ArrowLeft,
-  CalendarCheck,
+  UserCheck,
   CheckCircle,
 } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
@@ -54,7 +54,7 @@ export default async function StaffDashboardPage() {
                 {staff.role === StaffRole.MANAGER
                   ? 'مدیر ارشد سالن'
                   : staff.role === StaffRole.RECEPTIONIST
-                  ? 'مسئول پذیرش و نوبت‌دهی'
+                  ? 'مسئول پذیرش'
                   : staff.role === StaffRole.ARTIST
                   ? 'آرتیست زیبایی'
                   : 'امور مالی و حسابداری'}
@@ -98,7 +98,7 @@ export default async function StaffDashboardPage() {
 
         <Card className="flex items-start gap-3.5">
           <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 flex-shrink-0">
-            <CalendarCheck className="w-5 h-5" />
+            <UserCheck className="w-5 h-5" />
           </div>
           <div className="space-y-1">
             <span className="text-xs font-semibold text-stone-500">وضعیت حساب</span>
@@ -111,77 +111,55 @@ export default async function StaffDashboardPage() {
       </div>
 
       {/* Operational Sections */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-stone-900 flex items-center gap-2">
-          <span>دسترسی‌های سریع</span>
-        </h2>
+      {isManager && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-stone-900 flex items-center gap-2">
+            <span>دسترسی‌های مدیریتی</span>
+          </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {isManager && (
-            <>
-              <Link href="/dashboard/staff" className="group">
-                <Card variant="interactive" className="h-full flex flex-col justify-between">
-                  <div>
-                    <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-900 border border-purple-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
-                      <Users className="w-5 h-5" />
-                    </div>
-                    <h3 className="text-base font-bold text-stone-900 mb-1 group-hover:text-rose-900 transition-colors">
-                      مدیریت پرسنل و نشست‌ها
-                    </h3>
-                    <p className="text-xs text-stone-500 leading-relaxed">
-                      مشاهده اعضای پرسنل سالن، تغییر و ارتقای نقش‌ها، و ابطال فوری نشست‌های پرخطر.
-                    </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <Link href="/dashboard/staff" className="group">
+              <Card variant="interactive" className="h-full flex flex-col justify-between">
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-900 border border-purple-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <Users className="w-5 h-5" />
                   </div>
-                  <div className="mt-4 pt-3 border-t border-stone-100 flex items-center text-xs font-semibold text-rose-900 group-hover:text-rose-800">
-                    <span>ورود به مدیریت پرسنل</span>
-                    <ArrowLeft className="w-3.5 h-3.5 mr-1 group-hover:-translate-x-1 transition-transform" />
-                  </div>
-                </Card>
-              </Link>
-
-              <Link href="/dashboard/staff/recovery-requests" className="group">
-                <Card variant="interactive" className="h-full flex flex-col justify-between">
-                  <div>
-                    <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
-                      <LifeBuoy className="w-5 h-5" />
-                    </div>
-                    <h3 className="text-base font-bold text-stone-900 mb-1 group-hover:text-rose-900 transition-colors">
-                      صف تأیید بازیابی اضطراری
-                    </h3>
-                    <p className="text-xs text-stone-500 leading-relaxed">
-                      بررسی درخواست‌های پرسنلی که کدهای MFA خود را از دست داده‌اند و صدور توکن تحویل (Claim Token).
-                    </p>
-                  </div>
-                  <div className="mt-4 pt-3 border-t border-stone-100 flex items-center text-xs font-semibold text-rose-900 group-hover:text-rose-800">
-                    <span>بررسی درخواست‌های معلق</span>
-                    <ArrowLeft className="w-3.5 h-3.5 mr-1 group-hover:-translate-x-1 transition-transform" />
-                  </div>
-                </Card>
-              </Link>
-            </>
-          )}
-
-          <Link href="/booking" className="group">
-            <Card variant="interactive" className="h-full flex flex-col justify-between">
-              <div>
-                <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-900 border border-rose-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
-                  <CalendarCheck className="w-5 h-5" />
+                  <h3 className="text-base font-bold text-stone-900 mb-1 group-hover:text-rose-900 transition-colors">
+                    مدیریت پرسنل و نشست‌ها
+                  </h3>
+                  <p className="text-xs text-stone-500 leading-relaxed">
+                    مشاهده اعضای پرسنل سالن، تغییر و ارتقای نقش‌ها، و ابطال فوری نشست‌های پرخطر.
+                  </p>
                 </div>
-                <h3 className="text-base font-bold text-stone-900 mb-1 group-hover:text-rose-900 transition-colors">
-                  سیستم نوبت‌دهی و رزرو
-                </h3>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  مشاهده تقویم رزروها، بررسی نوبت‌های جاری و ثبت رزرو جدید برای مشتریان سالن.
-                </p>
-              </div>
-              <div className="mt-4 pt-3 border-t border-stone-100 flex items-center text-xs font-semibold text-rose-900 group-hover:text-rose-800">
-                <span>مشاهده سیستم رزرو</span>
-                <ArrowLeft className="w-3.5 h-3.5 mr-1 group-hover:-translate-x-1 transition-transform" />
-              </div>
-            </Card>
-          </Link>
+                <div className="mt-4 pt-3 border-t border-stone-100 flex items-center text-xs font-semibold text-rose-900 group-hover:text-rose-800">
+                  <span>ورود به مدیریت پرسنل</span>
+                  <ArrowLeft className="w-3.5 h-3.5 mr-1 group-hover:-translate-x-1 transition-transform" />
+                </div>
+              </Card>
+            </Link>
+
+            <Link href="/dashboard/staff/recovery-requests" className="group">
+              <Card variant="interactive" className="h-full flex flex-col justify-between">
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <LifeBuoy className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-base font-bold text-stone-900 mb-1 group-hover:text-rose-900 transition-colors">
+                    صف تأیید بازیابی اضطراری
+                  </h3>
+                  <p className="text-xs text-stone-500 leading-relaxed">
+                    بررسی درخواست‌های پرسنلی که کدهای MFA خود را از دست داده‌اند و صدور توکن تحویل (Claim Token).
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-stone-100 flex items-center text-xs font-semibold text-rose-900 group-hover:text-rose-800">
+                  <span>بررسی درخواست‌های معلق</span>
+                  <ArrowLeft className="w-3.5 h-3.5 mr-1 group-hover:-translate-x-1 transition-transform" />
+                </div>
+              </Card>
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

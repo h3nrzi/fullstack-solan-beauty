@@ -11,11 +11,11 @@ const vazirmatn = Vazirmatn({
 export const metadata: Metadata = {
   title: {
     template: '%s | سالن زیبایی VIP',
-    default: 'پلتفرم مدیریت سالن زیبایی VIP | رزرو و پرسنل',
+    default: 'پلتفرم مدیریت سالن زیبایی VIP',
   },
-  description: 'سیستم جامع، امن و هوشمند مدیریت نوبت‌دهی، خدمات و دسترسی پرسنل سالن زیبایی VIP',
+  description: 'سیستم جامع و امن مدیریت و دسترسی پرسنل سالن زیبایی VIP',
   applicationName: 'سالن زیبایی VIP',
-  keywords: ['سالن زیبایی', 'رزرو نوبت', 'آرتیست', 'مدیریت سالن', 'پرسنل سالن زیبایی'],
+  keywords: ['سالن زیبایی', 'مدیریت سالن', 'پرسنل سالن زیبایی', 'احراز هویت دو مرحله ای'],
   authors: [{ name: 'VIP Beauty Salon Team' }],
   creator: 'VIP Beauty Salon',
   publisher: 'VIP Beauty Salon',
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'پلتفرم مدیریت سالن زیبایی VIP',
-    description: 'سیستم جامع مدیریت عملیات، رزرو و دسترسی پرسنل سالن زیبایی',
+    description: 'سیستم جامع مدیریت عملیات و دسترسی پرسنل سالن زیبایی',
     siteName: 'سالن زیبایی VIP',
     locale: 'fa_IR',
     type: 'website',
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary',
     title: 'پلتفرم مدیریت سالن زیبایی VIP',
-    description: 'سیستم جامع مدیریت عملیات، رزرو و دسترسی پرسنل سالن زیبایی',
+    description: 'سیستم جامع مدیریت عملیات و دسترسی پرسنل سالن زیبایی',
   },
   robots: {
     index: true,
