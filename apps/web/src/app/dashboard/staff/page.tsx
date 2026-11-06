@@ -1,5 +1,4 @@
 import React from 'react';
-import { redirect } from 'next/navigation';
 import { StaffRole } from '@salon/shared';
 import { Users, ShieldAlert } from 'lucide-react';
 import { getCurrentStaff, getStaffList } from '../../../lib/api';
@@ -14,8 +13,7 @@ export const metadata = {
 };
 
 export default async function AdminStaffPage() {
-  const staff = await getCurrentStaff();
-  if (!staff) redirect('/login');
+  const staff = (await getCurrentStaff())!;
 
   // Server-side authorization guard: Prevent data leak to non-managers
   if (staff.role !== StaffRole.MANAGER) {

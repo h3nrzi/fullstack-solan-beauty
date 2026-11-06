@@ -1,5 +1,3 @@
-import { redirect } from 'next/navigation';
-import { getCurrentStaff } from '../../lib/api';
 import { LoginClientView } from '../../components/auth/LoginClientView';
 
 export const dynamic = 'force-dynamic';
@@ -9,12 +7,6 @@ export const metadata = {
   description: 'ورود پرسنل سالن زیبایی VIP با پشتیبانی از احراز هویت دو مرحله‌ای (MFA) و کدهای اضطراری',
 };
 
-export default async function LoginPage() {
-  // Check active session server-side
-  const staff = await getCurrentStaff();
-  if (staff) {
-    redirect('/dashboard');
-  }
-
+export default function LoginPage() {
   return <LoginClientView />;
 }

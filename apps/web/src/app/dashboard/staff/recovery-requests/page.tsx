@@ -1,5 +1,4 @@
 import React from 'react';
-import { redirect } from 'next/navigation';
 import { StaffRole } from '@salon/shared';
 import { LifeBuoy, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { getCurrentStaff, getPendingRecoveryRequests } from '../../../../lib/api';
@@ -14,8 +13,7 @@ export const metadata = {
 };
 
 export default async function AdminRecoveryRequestsPage() {
-  const staff = await getCurrentStaff();
-  if (!staff) redirect('/login');
+  const staff = (await getCurrentStaff())!;
 
   // Server-side authorization guard: Prevent data leak to non-managers
   if (staff.role !== StaffRole.MANAGER) {

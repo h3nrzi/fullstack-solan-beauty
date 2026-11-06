@@ -1,5 +1,4 @@
 import React from 'react';
-import { redirect } from 'next/navigation';
 import { getCurrentStaff } from '../../lib/api';
 import { StaffDashboardShell } from '../../components/admin/StaffDashboardShell';
 
@@ -10,11 +9,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const staff = await getCurrentStaff();
-
-  if (!staff) {
-    redirect('/login');
-  }
+  const staff = (await getCurrentStaff())!;
 
   return (
     <StaffDashboardShell currentStaff={staff}>

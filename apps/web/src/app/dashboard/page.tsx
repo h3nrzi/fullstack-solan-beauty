@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { getCurrentStaff } from '../../lib/api';
 import { StaffRole } from '@salon/shared';
 import {
@@ -23,8 +22,7 @@ export const metadata = {
 };
 
 export default async function StaffDashboardPage() {
-  const staff = await getCurrentStaff();
-  if (!staff) redirect('/login');
+  const staff = (await getCurrentStaff())!;
 
   const isManager = staff.role === StaffRole.MANAGER;
 
