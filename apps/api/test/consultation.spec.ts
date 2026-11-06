@@ -140,12 +140,13 @@ describe('Domain Service Seam - Seam 1: Consultation Request, Follow-up & SLA Bu
     expect(afterCustomerResponse.remainingMinutes).toBe(150);
 
     // 6. Receptionist reassigns request to specialist consultant
+    const reassignedTime = new Date(nextDay.getTime() + 1000);
     const afterReassignment = await consultationService.assignStaff(
       req.id,
       consultantId,
       receptionistId,
       'ارجاع به متخصص رنگ و مش',
-      nextDay,
+      reassignedTime,
     );
     expect(afterReassignment.assignedStaffId).toBe(consultantId);
     expect(afterReassignment.status).toBe(ConsultationStatus.ASSIGNED_CONSULTANT);

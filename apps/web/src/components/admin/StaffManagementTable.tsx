@@ -3,8 +3,6 @@
 import React, { useState } from 'react';
 import { StaffProfile, StaffRole } from '@salon/shared';
 import {
-  Users,
-  ShieldAlert,
   AlertCircle,
   LogOut,
   Shield,
@@ -21,15 +19,13 @@ import {
   revokeStaffSessionsAction,
 } from '../../actions/staff-management';
 
-interface StaffManagementViewProps {
-  currentStaff: StaffProfile;
+interface StaffManagementTableProps {
   initialStaffList: StaffProfile[];
 }
 
-export function StaffManagementView({
-  currentStaff,
+export function StaffManagementTable({
   initialStaffList,
-}: StaffManagementViewProps) {
+}: StaffManagementTableProps) {
   const [staffList, setStaffList] = useState<StaffProfile[]>(initialStaffList);
   const [searchQuery, setSearchQuery] = useState('');
   const [alertMessage, setAlertMessage] = useState<{
@@ -46,22 +42,6 @@ export function StaffManagementView({
   // Modal 2: Revoke Sessions
   const [revokeModalStaff, setRevokeModalStaff] = useState<StaffProfile | null>(null);
   const [revokingSessions, setRevokingSessions] = useState(false);
-
-  const isManager = currentStaff.role === StaffRole.MANAGER;
-
-  if (!isManager) {
-    return (
-      <Card className="max-w-xl mx-auto my-12 text-center p-8 space-y-4">
-        <div className="w-14 h-14 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl mx-auto flex items-center justify-center">
-          <ShieldAlert className="w-8 h-8" />
-        </div>
-        <h2 className="text-lg font-bold text-stone-900">عدم دسترسی به پنل مدیریت پرسنل</h2>
-        <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          نقش شما ({currentStaff.role}) مجوز مدیریت پرسنل را ندارد. این صفحه منحصراً در اختیار مدیران ارشد سالن است.
-        </p>
-      </Card>
-    );
-  }
 
   const filteredStaff = staffList.filter(
     (s) =>
@@ -133,19 +113,9 @@ export function StaffManagementView({
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Top Banner & Search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-stone-900 flex items-center gap-2">
-            <Users className="w-6 h-6 text-rose-900" />
-            مدیریت پرسنل و دسترسی‌های سازمانی
-          </h1>
-          <p className="text-xs sm:text-sm text-stone-500 mt-1">
-            ارتقا یا تغییر نقش‌های شغلی و ابطال بلادرنگ نشست‌های فعال کاربران در صورت رخداد امنیتی
-          </p>
-        </div>
-
+    <div className="space-y-6">
+      {/* Search Input */}
+      <div className="flex justify-end">
         <div className="w-full sm:w-72">
           <Input
             id="staffSearch"
@@ -216,7 +186,7 @@ export function StaffManagementView({
                         <Button
                           variant="outline"
                           onClick={() => handleOpenRoleModal(staff)}
-                          className="px-2.5 py-1 text-xs border-stone-300 hover:bg-stone-100"
+                          className="px-2.5 py-1 text-xs border-stone-300 hover:bg-stone-100 cursor-pointer"
                         >
                           <Shield className="w-3.5 h-3.5 ml-1 text-stone-600" />
                           تغییر نقش
@@ -225,7 +195,7 @@ export function StaffManagementView({
                         <Button
                           variant="outline"
                           onClick={() => setRevokeModalStaff(staff)}
-                          className="px-2.5 py-1 text-xs text-rose-900 border-rose-200 hover:bg-rose-50"
+                          className="px-2.5 py-1 text-xs text-rose-900 border-rose-200 hover:bg-rose-50 cursor-pointer"
                         >
                           <LogOut className="w-3.5 h-3.5 ml-1 text-rose-700" />
                           ابطال نشست‌ها
@@ -321,7 +291,7 @@ export function StaffManagementView({
             <Button
               type="button"
               variant="outline"
-              onClick={() => setRevokeModalStaff(null)}
+              onClick={() => setRoleModalStaff(null)}
             >
               انصراف
             </Button>

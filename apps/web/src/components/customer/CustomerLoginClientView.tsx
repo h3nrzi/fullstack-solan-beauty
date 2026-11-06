@@ -60,10 +60,10 @@ export function CustomerLoginClientView() {
 
     setLoading(true);
     const res = await verifyCustomerOtpAction(phone.trim(), cleanCode);
-    setLoading(false);
 
     if (!res.success) {
       setError(res.error || 'کد وارد شده نامعتبر است.');
+      setLoading(false);
       return;
     }
 

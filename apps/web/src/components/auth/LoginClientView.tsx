@@ -1,41 +1,27 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { StaffProfile } from '@salon/shared';
 import { ShieldCheck, ChevronRight } from 'lucide-react';
 import { Alert } from '../ui/Alert';
 import { CredentialsStep } from './CredentialsStep';
 import { MfaStep } from './MfaStep';
 import { RecoveryStep } from './RecoveryStep';
-import { StaffDashboard } from './StaffDashboard';
 import {
   loginAction,
   verifyMfaAction,
   verifyRecoveryAction,
-  logoutAction,
 } from '../../actions/auth';
 
 type AuthStep = 'credentials' | 'mfa' | 'recovery';
 
-interface LoginClientViewProps {
-  initialStaff: StaffProfile | null;
-}
-
-export function LoginClientView({ initialStaff }: LoginClientViewProps) {
+export function LoginClientView() {
   const router = useRouter();
   const [step, setStep] = useState<AuthStep>('credentials');
   const [tempToken, setTempToken] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
-  const [staffData, setStaffData] = useState<StaffProfile | null>(initialStaff);
   const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (initialStaff) {
-      router.push('/dashboard');
-    }
-  }, [initialStaff, router]);
 
   const handleCredentialsSubmit = async (credentials: { username: string; password: string }): Promise<void> => {
     setError(null);
@@ -45,18 +31,21 @@ export function LoginClientView({ initialStaff }: LoginClientViewProps) {
       const result = await loginAction(credentials);
       if (!result.success) {
         setError(result.error || 'نام کاربری یا رمز عبور اشتباه است');
+        setLoading(false);
         return;
       }
 
       if (result.mfaRequired && result.tempToken) {
         setTempToken(result.tempToken);
         setStep('mfa');
+        setLoading(false);
       } else if (result.staff) {
-        setStaffData(result.staff);
+        // Successful login: navigate directly to dashboard without intermediate screen flash
         router.push('/dashboard');
         router.refresh();
       }
-    } finally {
+    } catch {
+      setError('خطا در ورود به سیستم.');
       setLoading(false);
     }
   };
@@ -69,13 +58,15 @@ export function LoginClientView({ initialStaff }: LoginClientViewProps) {
       const result = await verifyMfaAction({ tempToken, code });
       if (!result.success || !result.data) {
         setError(result.error || 'کد احراز هویت نامعتبر است');
+        setLoading(false);
         return;
       }
 
-      setStaffData(result.data);
+      // Successful MFA: navigate directly to dashboard
       router.push('/dashboard');
       router.refresh();
-    } finally {
+    } catch {
+      setError('خطا در تایید کد احراز هویت.');
       setLoading(false);
     }
   };
@@ -88,27 +79,15 @@ export function LoginClientView({ initialStaff }: LoginClientViewProps) {
       const result = await verifyRecoveryAction({ tempToken, recoveryCode });
       if (!result.success || !result.data) {
         setError(result.error || 'کد بازیابی نامعتبر یا قبلاً مصرف شده است');
+        setLoading(false);
         return;
       }
 
-      setStaffData(result.data);
+      // Successful recovery: navigate directly to dashboard
       router.push('/dashboard');
       router.refresh();
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogout = async (): Promise<void> => {
-    setError(null);
-    setLoading(true);
-
-    try {
-      await logoutAction();
-      setStaffData(null);
-      setStep('credentials');
-      setTempToken('');
-    } finally {
+    } catch {
+      setError('خطا در بررسی کد بازیابی.');
       setLoading(false);
     }
   };
@@ -137,25 +116,27 @@ export function LoginClientView({ initialStaff }: LoginClientViewProps) {
           </p>
         </header>
 
-        {!staffData && (
-          <div className="flex items-center justify-between mb-5 px-1 text-xs" aria-label="پیشرفت مرحله ورود">
-            <span className="font-semibold text-rose-900">
-              {step === 'credentials' ? 'گام ۱ از ۲: مشخصات کاربری' : 'گام ۲ از ۲: تایید هویت دومرحله‌ای'}
-            </span>
-            <div className="flex gap-1.5" aria-hidden="true">
-              <span
-                className={`h-1.5 w-8 rounded-full transition-colors duration-200 ${
-                  step === 'credentials' ? 'bg-rose-900' : 'bg-emerald-600'
-                }`}
-              />
-              <span
-                className={`h-1.5 w-8 rounded-full transition-colors duration-200 ${
-                  step !== 'credentials' ? 'bg-rose-900' : 'bg-stone-200'
-                }`}
-              />
-            </div>
+        <div className="flex items-center justify-between mb-5 px-1 text-xs" aria-label="پیشرفت مرحله ورود">
+          <span className="font-semibold text-rose-900">
+            {step === 'credentials'
+              ? 'گام ۱ از ۲: مشخصات کاربری'
+              : step === 'mfa'
+              ? 'گام ۲ از ۲: تایید هویت دومرحله‌ای'
+              : 'بازیابی اضطراری با کد یک‌بارمصرف'}
+          </span>
+          <div className="flex gap-1.5" aria-hidden="true">
+            <span
+              className={`h-1.5 w-8 rounded-full transition-colors duration-200 ${
+                step === 'credentials' ? 'bg-rose-900' : 'bg-emerald-600'
+              }`}
+            />
+            <span
+              className={`h-1.5 w-8 rounded-full transition-colors duration-200 ${
+                step !== 'credentials' ? 'bg-rose-900' : 'bg-stone-200'
+              }`}
+            />
           </div>
-        )}
+        </div>
 
         {error && (
           <div className="mb-5">
@@ -163,13 +144,7 @@ export function LoginClientView({ initialStaff }: LoginClientViewProps) {
           </div>
         )}
 
-        {staffData ? (
-          <StaffDashboard
-            staff={staffData}
-            loading={loading}
-            onLogout={handleLogout}
-          />
-        ) : step === 'credentials' ? (
+        {step === 'credentials' ? (
           <CredentialsStep
             loading={loading}
             onSubmit={handleCredentialsSubmit}

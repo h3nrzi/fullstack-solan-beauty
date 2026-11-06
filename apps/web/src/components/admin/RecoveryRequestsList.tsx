@@ -1,11 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { StaffProfile, StaffRole } from '@salon/shared';
 import {
-  LifeBuoy,
-  ShieldCheck,
-  ShieldAlert,
   AlertTriangle,
   CheckCircle,
   XCircle,
@@ -26,15 +22,15 @@ import {
   rejectRecoveryAction,
 } from '../../actions/emergency-recovery';
 
-interface RecoveryRequestsViewProps {
-  currentStaff: StaffProfile;
+interface RecoveryRequestsListProps {
   initialRequests: PendingRecoveryRequestItem[];
+  currentStaffId: string;
 }
 
-export function RecoveryRequestsView({
-  currentStaff,
+export function RecoveryRequestsList({
   initialRequests,
-}: RecoveryRequestsViewProps) {
+  currentStaffId,
+}: RecoveryRequestsListProps) {
   const [requests, setRequests] = useState<PendingRecoveryRequestItem[]>(initialRequests);
   const [alertMessage, setAlertMessage] = useState<{
     type: 'success' | 'error';
@@ -54,22 +50,6 @@ export function RecoveryRequestsView({
   const [rejectingItem, setRejectingItem] = useState<PendingRecoveryRequestItem | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [isSubmittingReject, setIsSubmittingReject] = useState(false);
-
-  const isManager = currentStaff.role === StaffRole.MANAGER;
-
-  if (!isManager) {
-    return (
-      <Card className="max-w-xl mx-auto my-12 text-center p-8 space-y-4">
-        <div className="w-14 h-14 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl mx-auto flex items-center justify-center">
-          <ShieldAlert className="w-8 h-8" />
-        </div>
-        <h2 className="text-lg font-bold text-stone-900">عدم دسترسی به صف بازیابی اضطراری</h2>
-        <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          تنها مدیران ارشد سالن مجاز به بررسی و صدور توکن بازیابی اضطراری هستند.
-        </p>
-      </Card>
-    );
-  }
 
   const handleApprove = async (req: PendingRecoveryRequestItem) => {
     setApprovingId(req.id);
@@ -137,34 +117,15 @@ export function RecoveryRequestsView({
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-stone-900 flex items-center gap-2">
-          <LifeBuoy className="w-6 h-6 text-rose-900" />
-          صف تأیید بازیابی اضطراری حساب پرسنل
-        </h1>
-        <p className="text-xs sm:text-sm text-stone-500 mt-1">
-          بررسی درخواست‌های کارمندانی که دسترسی به کدهای دو مرحله‌ای خود را از دست داده‌اند (اصل تأیید مستقل مدیر)
-        </p>
-      </div>
-
+    <div className="space-y-6">
       {alertMessage && (
         <Alert type={alertMessage.type}>{alertMessage.text}</Alert>
       )}
 
-      {/* Security Rule Banner */}
-      <div className="p-4 bg-amber-50/80 border border-amber-200/90 rounded-2xl flex items-start gap-3 text-xs text-amber-950 leading-relaxed">
-        <ShieldCheck className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
-        <div>
-          <span className="font-bold block mb-0.5">قانون امنیت Seam 1 (Anti-Self-Approval):</span>
-          هیچ مدیری نمی‌تواند درخواست بازیابی ثبت شده برای خودش را تأیید کند. صدور توکن تحویل (Claim Token) الزماً نیازمند تأیید یک مدیر مستقل دیگر سالن است تا از نقض دسترسی جلوگیری شود.
-        </div>
-      </div>
-
       {/* Requests List */}
       {requests.length === 0 ? (
         <Card className="py-12 text-center text-stone-400 space-y-3">
-          <CheckCircle className="w-10 h-10 mx-auto text-emerald-500/80" />
+          <CheckCircle className="w-10 h-10 mx-auto text-emerald-500/80" aria-hidden="true" />
           <p className="text-sm font-semibold text-stone-700">
             هیچ درخواست بازیابی اضطراری در صف بررسی وجود ندارد.
           </p>
@@ -175,7 +136,7 @@ export function RecoveryRequestsView({
       ) : (
         <div className="grid grid-cols-1 gap-4">
           {requests.map((req) => {
-            const isSelfRequest = req.targetStaffId === currentStaff.id;
+            const isSelfRequest = req.targetStaffId === currentStaffId;
 
             return (
               <Card
@@ -241,7 +202,7 @@ export function RecoveryRequestsView({
                         setRejectingItem(req);
                         setRejectionReason('');
                       }}
-                      className="text-xs px-3 py-1.5 text-rose-900 border-stone-300 hover:bg-stone-50"
+                      className="text-xs px-3 py-1.5 text-rose-900 border-stone-300 hover:bg-stone-50 cursor-pointer"
                     >
                       <XCircle className="w-3.5 h-3.5 ml-1 text-stone-500" />
                       رد درخواست
@@ -252,7 +213,7 @@ export function RecoveryRequestsView({
                       disabled={isSelfRequest || approvingId === req.id}
                       loading={approvingId === req.id}
                       onClick={() => handleApprove(req)}
-                      className="text-xs px-3.5 py-1.5"
+                      className="text-xs px-3.5 py-1.5 cursor-pointer"
                     >
                       <CheckCircle className="w-3.5 h-3.5 ml-1" />
                       تأیید و صدور توکن تحویل

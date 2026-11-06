@@ -16,5 +16,5 @@ export default async function LoginPage() {
     redirect('/dashboard');
   }
 
-  return <LoginClientView initialStaff={null} />;
+  return <LoginClientView />;
 }
