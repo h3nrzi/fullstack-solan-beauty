@@ -9,7 +9,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const staff = (await getCurrentStaff())!;
+  const staff = await getCurrentStaff();
 
   return (
     <StaffDashboardShell currentStaff={staff}>

@@ -17,7 +17,7 @@ import { Badge } from '../ui/Badge';
 import { logoutAction } from '../../actions/auth';
 
 interface StaffDashboardShellProps {
-  currentStaff: StaffProfile;
+  currentStaff: StaffProfile | null;
   children: React.ReactNode;
 }
 
@@ -28,6 +28,10 @@ export function StaffDashboardShell({
   const pathname = usePathname();
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
+
+  if (!currentStaff) {
+    return null;
+  }
 
   const isManager = currentStaff.role === StaffRole.MANAGER;
 
