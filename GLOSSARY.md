@@ -1,131 +1,121 @@
-# دامنهٔ عملیات سالن زیبایی
+# Beauty Salon Operations Domain
 
-واژگان مشترک رزرو، ارائهٔ خدمات و حسابداری عملیاتی سالن و شعب آیندهٔ آن.
+Shared vocabulary for bookings, service delivery, operational accounting of the salon and its future branches.
 
 ## Language
 
-**آرتیست**:
-متخصص ارائه‌دهندهٔ خدمات زیبایی با تخصص، برنامهٔ کاری و قرارداد کمیسیون مشخص.
-_Avoid_: کاربر، منبع انسانی در اشاره به ارائه‌دهندهٔ خدمت
+**Artist**:
+Professional service provider with a defined specialty, working schedule, and commission agreement.
+_Avoid_: User, human resource (when referring to service provider)
 
-**شعبه**:
-واحد عملیاتی سالن که می‌تواند پرسنل، تقویم، موجودی انبار و صندوق مستقل داشته باشد و زیر نظر مدیریت مرکزی باشد.
-_Avoid_: کسب‌وکار مستقل، مستأجر
+**Branch**:
+Operational salon unit that can have independent staff, calendar, inventory, and cash register under central management.
+_Avoid_: Independent business, tenant
 
-**رزرو چندخدمتی**:
-رزروی برای دریافت چند خدمت توسط یک مشتری که زمان و آرتیست هر خدمت باید با محدودیت‌های اجرایی سازگار باشد.
-_Avoid_: یک خدمت طولانی در اشاره به مجموعه خدمات
+**Multi-Service Booking**:
+A booking for multiple services received by a single customer where the time and artist for each service must satisfy execution constraints.
+_Avoid_: Single long service (when referring to a suite of services)
 
-**مرحلهٔ خدمت**:
-بخشی از اجرای یک خدمت که مدت و نیاز آن به آرتیست یا منابع مشترک می‌تواند با بخش‌های دیگر متفاوت باشد.
-_Avoid_: خدمت مستقل در اشاره به بخشی از اجرای همان خدمت
+**Service Phase**:
+A segment of service execution whose duration and requirement for an artist or shared resources can differ from other segments.
+_Avoid_: Independent service (when referring to a segment of the same service)
 
-**زمان مکث**:
-بازهٔ پردازش یا انتظار درون یک خدمت، مانند مکث مواد رنگ؛ امکان فعالیت آرتیست روی مشتری دیگر در این بازه به شرایط خدمت و سالن بستگی دارد.
-_Avoid_: وقت آزاد قطعی آرتیست
+**Processing Time**:
+Processing or waiting interval within a service, such as hair color processing; whether the artist can serve another customer during this interval depends on the service and salon policy.
+_Avoid_: Guaranteed artist free time
 
-**منبع مشترک**:
-تجهیز یا فضای دارای ظرفیت محدود که ارائهٔ خدمت به دسترسی به آن وابسته است؛ مانند تخت فیشیال، صندلی شست‌وشو یا اتاق عروس.
-_Avoid_: آرتیست در اشاره به تجهیزات یا فضا
+**Shared Resource**:
+Equipment or facility with limited capacity that service delivery depends on; such as facial beds, wash chairs, or bridal suite.
+_Avoid_: Artist (when referring to equipment or space)
 
-**خدمات هم‌زمان سازگار**:
-خدماتی برای یک مشتری که اجرای هم‌زمان آن‌ها با حضور آرتیست‌های لازم و رعایت شرایط اجرایی و ایمنی مجاز باشد.
-_Avoid_: هر دو خدمت هم‌زمان
+**Compatible Concurrent Services**:
+Services for a single customer whose simultaneous execution is permitted with the required artists and adherence to operational and safety conditions.
+_Avoid_: Any two simultaneous services
 
-**بیعانه**:
-وجه دریافتی پیش از ارائهٔ خدمت برای رزرو که در تسویهٔ نهایی منظور می‌شود و سرنوشت آن هنگام لغو یا تغییر نوبت تابع سیاست سالن است.
-_Avoid_: اعتبار هدیه، کیف پول پاداش
+**Deposit**:
+Amount collected prior to service delivery for booking, credited toward the final settlement, whose disposition upon cancellation or reschedule follows salon policy.
+_Avoid_: Gift credit, reward wallet
 
-**قرارداد کمیسیون**:
-توافق سالن و آرتیست دربارهٔ سهم آرتیست از خدمات، شامل درصد و قواعد کسر هزینهٔ مواد از مبنای محاسبه.
-_Avoid_: درصد ثابت همهٔ آرتیست‌ها
+**Commission Agreement**:
+Agreement between the salon and artist regarding the artist's share of services, including percentages and rules for deducting material costs from the calculation base.
+_Avoid_: Fixed percentage for all artists
 
-**تعرفه**:
-نرخ پایه یا بازه قیمت، مدت زمان و بیعانه مشخص‌شده برای یک خدمت در سالن یا برای یک آرتیست خاص با سابقه معین؛ تغییر تعرفه نسخه جدید می‌سازد و سوابق ثبت‌شده قبلی را تغییر نمی‌دهد.
-_Avoid_: قیمت سلیقه‌ای، ویرایش قیمت رزروهای گذشته
+**Tariff**:
+Base rate or price range, duration, and deposit defined for a service in the salon or for a specific artist with established tenure; changing a tariff creates a new version and does not alter previously recorded history.
+_Avoid_: Arbitrary pricing, editing prices of past bookings
 
-**ماندهٔ افتتاحیه**:
-موجودی یا تعهد باز هنگام شروع بهره‌برداری که از وضعیت پیشین منتقل، با مسئولان مربوط تطبیق و توسط مدیریت تأیید می‌شود.
-_Avoid_: پاداش اولیه، مبلغ فرضی
+**Opening Balance**:
+Inventory or open liability at the start of operations transferred from a previous state, reconciled with relevant officers, and approved by management.
+_Avoid_: Initial bonus, hypothetical amount
 
+**Commission Base**:
+The amount to which the artist's contract percentage is applied; defaults to the greater of zero and the net service price after discounts minus deductible material costs.
+_Avoid_: Total register receipts, net profit
 
-**مبنای کمیسیون**:
-مبلغی که درصد قرارداد آرتیست بر آن اعمال می‌شود؛ در حالت پیش‌فرض برابر بزرگ‌ترِ صفر و حاصل کسر هزینهٔ مواد قابل کسر از مبلغ خدمت پس از تخفیف است.
-_Avoid_: کل دریافتی صندوق، سود خالص
+**Salon Share After Materials and Commission**:
+Remaining service revenue after discounts, material costs, and artist commission; other salon overheads have not yet been deducted.
+_Avoid_: Net salon profit
 
-**سهم سالن پس از کسر مواد و کمیسیون**:
-باقیماندهٔ مبلغ خدمت پس از تخفیف، هزینهٔ مواد و سهم آرتیست؛ سایر مخارج سالن هنوز از آن کسر نشده‌اند.
-_Avoid_: سود خالص سالن
+**Salon-Borne Refund**:
+Compensatory refund to the customer while preserving the validated service amount and artist commission; the financial burden is borne by the salon.
+_Avoid_: Service price adjustment, automatic commission reduction
 
+**Service Amount Adjustment**:
+Adjustment to the validated service amount which also modifies the commission calculation base for that service under the established contract.
+_Avoid_: Salon compensatory payout, unrecorded settlement edit
 
-**استرداد با هزینهٔ سالن**:
-بازپرداخت جبرانی به مشتری با حفظ مبلغ معتبر خدمت و کمیسیون آرتیست؛ اثر جبران بر عهدهٔ سالن است.
-_Avoid_: اصلاح قیمت خدمت، کاهش خودکار کمیسیون
+**Customer Prepayment**:
+Funds received prior to service revenue realization that have not yet been applied toward rendered services.
+_Avoid_: Realized revenue, salon profit
 
-**اصلاح مبلغ خدمت**:
-تعدیل مبلغ معتبر خدمت که مبنای محاسبهٔ کمیسیون همان خدمت را نیز با قرارداد تثبیت‌شده تغییر می‌دهد.
-_Avoid_: پرداخت جبرانی سالن، ویرایش بی‌سابقهٔ تسویه
+**Suspended Consumption**:
+Actual recorded material consumption whose quantity and cost have not yet been finalized due to inventory discrepancy.
+_Avoid_: Negative inventory, finalized consumption
 
-**پیش‌دریافت مشتری**:
-وجه دریافت‌شده پیش از تحقق درآمد خدمت که هنوز بابت خدمت انجام‌شده منظور نشده است.
-_Avoid_: درآمد قطعی، سود سالن
+**Deposit Credit**:
+A paid deposit balance whose right of use is preserved without expiration for future bookings by the same customer, for any service and artist of the same salon; distinct from customer rewards.
+_Avoid_: Gift credit, reward wallet
 
-**مصرف معلق**:
-مصرف واقعی ثبت‌شده‌ای که به‌علت مغایرت موجودی هنوز مقدار و بهای آن قطعی نشده است.
-_Avoid_: موجودی منفی، مصرف قطعی
+**Consultation Request**:
+A customer request for evaluation and consultation regarding a service whose required duration or resource capacity is not yet reliable; does not create a confirmed booking, capacity hold, or booking deposit.
+_Avoid_: Confirmed booking, confirmed appointment
 
+**Photo Publication Consent**:
+Explicit and independent consent from the customer for promotional use of their image with specific purpose, distribution channel, and duration; distinct from consultation image review consent and revocable.
+_Avoid_: Permanent consent, consultation consent (when referring to advertising permission)
 
-**اعتبار بیعانه**:
-مبلغی از بیعانهٔ پرداخت‌شده که حق استفادهٔ آن برای رزروهای آیندهٔ همان مشتری، برای هر خدمت و آرتیست همان سالن و بدون انقضا حفظ شده است؛ مستقل از پاداش مشتری است.
-_Avoid_: اعتبار هدیه، کیف پول پاداش
+**Booking Service Item**:
+A distinct service for a customer within a booking, with an independent artist, schedule, and execution status; may itself comprise multiple service phases.
+_Avoid_: Service phase (when referring to an entire booked service)
 
+**Visit Invoice**:
+The collection of financial line items for services rendered during a visit, establishing the receivable amount and customer balance, and potentially spanning multiple artists.
+_Avoid_: Receipt of funds, commission settlement
 
-**درخواست بررسی**:
-درخواست مشتری برای بررسی و مشاوره درباره خدمتی که مدت یا ظرفیت منابع لازم آن هنوز قابل اتکا نیست؛ این درخواست نوبت قطعی، تعهد ظرفیت یا بیعانه رزرو ایجاد نمی‌کند.
-_Avoid_: رزرو قطعی، نوبت تأییدشده
+**Payment Allocation**:
+A designated portion of a received payment credited toward a specific invoice line item; a single payment may have multiple allocations.
+_Avoid_: Service revenue, undocumented deposit transfer
 
+**Halted Service**:
+A service whose execution started but ended prior to completion; distinct from pre-execution cancellation and completed verified service.
+_Avoid_: Completed service, pre-execution cancellation
 
-**رضایت انتشار تصویر**:
-اجازه صریح و مستقل مشتری برای استفاده تبلیغاتی از تصویر او با هدف، محل انتشار و مدت مشخص؛ از رضایت بررسی تصویر در مشاوره جداست و قابل لغو است.
-_Avoid_: رضایت دائمی، رضایت مشاوره در اشاره به اجازه تبلیغات
+**Service Execution Verification**:
+Operational confirmation by authorized reception staff that a service item was actually performed; independent of the artist's self-reported completion.
+_Avoid_: Artist completion declaration, funds collection
 
+**Halted Service Resolution Record**:
+Agreed financial outcome document for a service halted prior to completion, with customer acceptance and authorized documented decision; does not alter the halted execution status.
+_Avoid_: Full service invoice, cancellation penalty
 
-**قلم خدمت رزرو**:
-یک خدمت مشخص برای مشتری در یک رزرو، با آرتیست، زمان و وضعیت اجرای مستقل؛ می‌تواند خود شامل چند مرحلهٔ خدمت باشد.
-_Avoid_: مرحلهٔ خدمت در اشاره به کل یک خدمت رزروشده
+**Final Price Rejection**:
+Rejection by the customer of the proposed final service price prior to execution start; distinct from no-show and rendered service, with deposit disposition governed by accepted booking terms.
+_Avoid_: No-show, rendered service
 
-**صورتحساب مراجعه**:
-مجموعه ردیف‌های مالی خدمات یک مراجعه که مبلغ قابل دریافت و مانده مشتری را مشخص می‌کند و می‌تواند خدمات چند آرتیست را در بر گیرد.
-_Avoid_: دریافت وجه، تسویه کمیسیون
+**Customer Session**:
+A valid, time-bound credential resulting from successful OTP authentication, tied to a persistent customer identity, providing secure access to personal data and operations without exposure to or modification of other users' data.
+_Avoid_: Public token, permanent session
 
-**تخصیص دریافت**:
-بخشی مشخص از یک دریافت وجه که بابت یک ردیف صورتحساب منظور شده است؛ یک دریافت می‌تواند چند تخصیص داشته باشد.
-_Avoid_: درآمد خدمت، انتقال بی‌سند بیعانه
-
-
-**خدمت متوقف‌شده پیش از تکمیل**:
-خدمتی که اجرای آن شروع شده اما پیش از تکمیل پایان یافته است؛ از لغو پیش از اجرا و خدمت انجام‌شده و تأییدشده متمایز است.
-_Avoid_: خدمت تکمیل‌شده، لغو پیش از اجرا
-
-**تأیید انجام خدمت**:
-تأیید عملیاتی پذیرش مجاز بر انجام واقعی یک قلم خدمت که از اعلام پایان کار توسط آرتیست مستقل است.
-_Avoid_: اعلام پایان آرتیست، وصول وجه
-
-
-**سند تعیین تکلیف خدمت متوقف‌شده**:
-سند نتیجه مالی توافق‌شده برای یک خدمت متوقف‌شده پیش از تکمیل، با پذیرش مشتری و تصمیم مستند مجاز؛ وضعیت توقف اجرای خدمت را تغییر نمی‌دهد.
-_Avoid_: صورتحساب خدمت کامل، جریمه لغو
-
-
-**عدم پذیرش قیمت نهایی**:
-رد مبلغ پیشنهادی نهایی خدمت توسط مشتری پیش از شروع اجرا؛ از عدم حضور و انجام خدمت مستقل است و تعیین تکلیف بیعانه آن به شرایط پذیرفته‌شده رزرو بستگی دارد.
-_Avoid_: عدم حضور، خدمت انجام‌شده
-
-**نشست مشتری**:
-شناسه معتبر و مدت‌دار حاصل از احراز هویت موفق با رمز یک‌بارمصرف (OTP) که به هویت پایدار مشتری متصل است و دسترسی امن به اطلاعات و عملیات شخصی او را بدون امکان مشاهده یا دستکاری داده دیگران فراهم می‌کند.
-_Avoid_: توکن عمومی، نشست دائمی
-
-**رمز یک‌بارمصرف مشتری**:
-کد عددی کوتاه‌مدت، یک‌بارمصرف و دارای محدودیت تلاش که از طریق پیامک برای احراز هویت مشتری ارسال می‌شود و پس از مصرف یا انقضا باطل می‌گردد.
-_Avoid_: رمز ثابت، کد احراز دائمی
-
+**Customer OTP**:
+A short-lived, single-use numeric code with attempt limits sent via SMS for customer authentication, invalidated upon use or expiration.
+_Avoid_: Static password, permanent auth code
